@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Archivo de confirguracion Android Studio
+/.idea/misc.xml
