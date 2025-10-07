@@ -22,16 +22,42 @@ import com.example.blockrott.frontend.components.UsageStats
 import com.example.blockrott.frontend.theme.AppTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import backend.AccesoUsoApps
 
 @Composable
 fun HomeScreen(){
+    var context = LocalContext.current
     var showStatistics by remember { mutableStateOf(false) }
-    val sampleStats = listOf(
-        UsageStats("TikTok", "1h"),
-        UsageStats("Youtube", "20 min"),
-        UsageStats("Reddit", "6 min")
-    )
-    val hoursOfUse = "1h 26 min"
+    var listaEstadisticas by remember { mutableStateOf(emptyList<UsageStats>()) }
+    var tiempoTotal by remember { mutableStateOf("0m") }
+
+
+
+    fun actualizarEstadisticas(){
+        var accesoUso = AccesoUsoApps(context)
+
+        val tiempoTikTok = accesoUso.obtenerTiempoDeUsoAplicacion("com.zhiliaoapp.musically")
+        val tiempoYouTube = accesoUso.obtenerTiempoDeUsoAplicacion("com.google.android.youtube")
+        val tiempoReddit = accesoUso.obtenerTiempoDeUsoAplicacion("com.reddit.frontpage")
+        val tiempoInstagram = accesoUso.obtenerTiempoDeUsoAplicacion("com.instagram.android")
+
+
+        val listaTemporal = listOf(
+            UsageStats("TikTok", accesoUso.convertirTiempoLegible(tiempoTikTok)),
+            UsageStats("YouTube", accesoUso.convertirTiempoLegible(tiempoYouTube)),
+            UsageStats("Reddit", accesoUso.convertirTiempoLegible(tiempoReddit)),
+            UsageStats("Instagram", accesoUso.convertirTiempoLegible(tiempoInstagram))
+
+        )
+
+        val totalTiempo = tiempoTikTok + tiempoYouTube + tiempoReddit
+
+        listaEstadisticas = listaTemporal
+        tiempoTotal = accesoUso.convertirTiempoLegible(totalTiempo)
+        showStatistics = true
+    }
+
     Scaffold(
         topBar = {},
         bottomBar = {
@@ -45,7 +71,7 @@ fun HomeScreen(){
                     modifier = Modifier
                         .height(65.dp)
                         .width(125.dp),
-                    onClick = {showStatistics = !showStatistics}
+                    onClick = {actualizarEstadisticas() }
                 )
             }
         }
@@ -58,7 +84,7 @@ fun HomeScreen(){
             verticalArrangement = Arrangement.Center
         ) {
             if (showStatistics){
-                AppStatistics(hoursOfUse, sampleStats)
+                AppStatistics(tiempoTotal, listaEstadisticas)
             }
         }
     }

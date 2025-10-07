@@ -48,11 +48,12 @@ public class AccesoUsoApps {
         totalMilis += obtenerTiempoDeUsoAplicacion("com.zhiliaoapp.musically");
         totalMilis += obtenerTiempoDeUsoAplicacion("com.google.android.youtube");
         totalMilis += obtenerTiempoDeUsoAplicacion("com.reddit.frontpage");
+        totalMilis += obtenerTiempoDeUsoAplicacion("com.instagram.android");
         return totalMilis;
     }
 
 
-    private String convertirTiempoLegible(long tiempoMilisegundos) {
+    public String convertirTiempoLegible(long tiempoMilisegundos) {
         long segundos = tiempoMilisegundos / 1000;
         long minutos = segundos / 60;
         long horas = minutos / 60;
@@ -69,4 +70,3 @@ public class AccesoUsoApps {
 
     }
 
-}
