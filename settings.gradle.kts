@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "BlockRott"
 include(":app")
- 
+include(":springboot-backend")
