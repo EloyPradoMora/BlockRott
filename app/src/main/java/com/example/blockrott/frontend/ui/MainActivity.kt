@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.blockrott.frontend.screens.HomeScreen
 import com.example.blockrott.frontend.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MyApp() {
-    // Agregar aqui el codigo
+    HomeScreen()
 }
 
 @Preview(showBackground = true)
