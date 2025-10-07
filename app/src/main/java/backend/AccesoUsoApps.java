@@ -14,7 +14,7 @@ public class AccesoUsoApps {
         this.contexto = contexto;
     }
 
-    public String obtenerTiempoDeUsoAplicacion(String nombreAplicacion) {
+    public long obtenerTiempoDeUsoAplicacion(String nombreAplicacion) {
         UsageStatsManager administradorUso = (UsageStatsManager)
                 contexto.getSystemService(Context.USAGE_STATS_SERVICE);
 
@@ -27,26 +27,30 @@ public class AccesoUsoApps {
                 UsageStatsManager.INTERVAL_DAILY, tiempoInicial, tiempoFinal);
 
         if (listaEstadisticas == null) {
-            return "No se encontraron estadísticas de uso.";
+            return 0;
         }
 
         for (UsageStats estadistica : listaEstadisticas) {
             if (estadistica.getPackageName().equals(nombreAplicacion)) {
                 long tiempoMilisegundos = estadistica.getTotalTimeInForeground();
-                if (tiempoMilisegundos > 0) {
-                    String tiempoFormateado = convertirTiempoLegible(tiempoMilisegundos);
-                    Log.d("AccesoUsoApps",
-                            "Aplicación: " + nombreAplicacion
-                                    + " -> " + tiempoFormateado);
-                    return tiempoFormateado;
-                } else {
-                    return "0m";
+                Log.d("AccesoUsoApps",
+                            "App: " + nombreAplicacion
+                                    + " -> " + convertirTiempoLegible(tiempoMilisegundos));
+                    return tiempoMilisegundos;
                 }
-            }
-        }
-        return "Aplicación no encontrada.";
 
+            }
+        return 0;
     }
+
+    public long calcularTiempoUsoTotal() {
+        long totalMilis = 0;
+        totalMilis += obtenerTiempoDeUsoAplicacion("com.zhiliaoapp.musically");
+        totalMilis += obtenerTiempoDeUsoAplicacion("com.google.android.youtube");
+        totalMilis += obtenerTiempoDeUsoAplicacion("com.reddit.frontpage");
+        return totalMilis;
+    }
+
 
     private String convertirTiempoLegible(long tiempoMilisegundos) {
         long segundos = tiempoMilisegundos / 1000;
@@ -56,9 +60,13 @@ public class AccesoUsoApps {
 
         if (horas > 0) {
             return horas + "h " + minutos + "m";
-        } else {
+        } else if (minutos > 0){
             return minutos + "m";
+        }else{
+            return "0m";
         }
+    }
+
     }
 
 }
