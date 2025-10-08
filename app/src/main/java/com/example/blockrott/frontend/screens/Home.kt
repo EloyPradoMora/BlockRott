@@ -1,5 +1,8 @@
 package com.example.blockrott.frontend.screens
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +26,7 @@ import com.example.blockrott.frontend.theme.AppTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import backend.AccesoUsoApps
+import backend.Usuario
 
 @Composable
 fun HomeScreen(){
@@ -35,26 +38,37 @@ fun HomeScreen(){
 
 
     fun actualizarEstadisticas(){
-        var accesoUso = AccesoUsoApps(context)
+        var tempUsuario = Usuario()
+        if (!tempUsuario.verificarPermisos(context)) {
+            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
+                data = Uri.fromParts("package", context.packageName, null)
+            }
+            context.startActivity(intent)
+            return
+        }
 
-        val tiempoTikTok = accesoUso.obtenerTiempoDeUsoAplicacion("com.zhiliaoapp.musically")
-        val tiempoYouTube = accesoUso.obtenerTiempoDeUsoAplicacion("com.google.android.youtube")
-        val tiempoReddit = accesoUso.obtenerTiempoDeUsoAplicacion("com.reddit.frontpage")
-        val tiempoInstagram = accesoUso.obtenerTiempoDeUsoAplicacion("com.instagram.android")
+        var usuario = Usuario()
+        usuario.agregarEspecificacionNueva("com.zhiliaoapp.musically",0, context)
+        usuario.agregarEspecificacionNueva("com.google.android.youtube",0, context)
+        usuario.agregarEspecificacionNueva("com.reddit.frontpage",0, context)
+        usuario.agregarEspecificacionNueva("com.instagram.android",0, context)
 
+        val rawUseTimeString = usuario.revisarTiempos()
 
-        val listaTemporal = listOf(
-            UsageStats("TikTok", accesoUso.convertirTiempoLegible(tiempoTikTok)),
-            UsageStats("YouTube", accesoUso.convertirTiempoLegible(tiempoYouTube)),
-            UsageStats("Reddit", accesoUso.convertirTiempoLegible(tiempoReddit)),
-            UsageStats("Instagram", accesoUso.convertirTiempoLegible(tiempoInstagram))
+        val listaTemporal: List<UsageStats> = rawUseTimeString.lines().filter { it.isNotBlank() }
+            .mapNotNull { line ->
+                val parts = line.split(',')
+                if (parts.size == 2) {
+                    UsageStats(appName = parts[0].trim(), usageTime = parts[1].trim())
+                } else {
+                    null
+                }
+            }
 
-        )
-
-        val totalTiempo = tiempoTikTok + tiempoYouTube + tiempoReddit
+        val totalTiempo = calcularTiempoTotal(listaTemporal)
 
         listaEstadisticas = listaTemporal
-        tiempoTotal = accesoUso.convertirTiempoLegible(totalTiempo)
+        tiempoTotal = totalTiempo.toString() + "m"
         showStatistics = true
     }
 
@@ -96,4 +110,26 @@ fun HomePreview(){
     AppTheme {
         HomeScreen()
     }
+}
+
+fun tiempoAMinutos(timeString: String): Int{
+    var total = 0
+    var horasMatch = "(\\d+)\\s*h".toRegex().find(timeString)
+    val minutosMatch = "(\\d+)\\s*m".toRegex().find(timeString)
+    horasMatch?.let {
+        val horas = it.groupValues[1].toIntOrNull() ?: 0
+        total += horas * 60
+    }
+    minutosMatch?.let {
+        val minutes = it.groupValues[1].toIntOrNull() ?: 0
+        total += minutes
+    }
+    return total
+}
+
+fun calcularTiempoTotal(listaTemporal: List<UsageStats>): Int {
+    val tiempoEnMinutos = listaTemporal.sumOf { usageStat ->
+        tiempoAMinutos(usageStat.usageTime)
+    }
+    return tiempoEnMinutos
 }
