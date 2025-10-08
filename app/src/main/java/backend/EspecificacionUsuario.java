@@ -12,13 +12,15 @@ import java.util.List;
 
 public class EspecificacionUsuario {
     String nombreApp;
+    String nombrePaquete;
     long tiempoUso;
     long tiempoMaximoUso;
     boolean bloqueada;
     private Context contexto;
 
-    public EspecificacionUsuario(String nombreApp, long tiempoMaximoUso, Context contexto){
+    public EspecificacionUsuario(String nombreApp, String nombrePaquete, long tiempoMaximoUso, Context contexto){
         this.nombreApp = nombreApp;
+        this.nombrePaquete= nombrePaquete;
         this.tiempoUso = 0;
         this.tiempoMaximoUso = tiempoMaximoUso;
         this.contexto = contexto;
@@ -42,7 +44,7 @@ public class EspecificacionUsuario {
         }
         String nombreDisplay = obtenerNombreLegibleApp();
         for (UsageStats estadistica : listaEstadisticas) {
-            if (estadistica.getPackageName().equals(nombreApp)) {
+            if (estadistica.getPackageName().equals(nombrePaquete)) {
                 long tiempoMilisegundos = estadistica.getTotalTimeInForeground();
                 Log.d("AccesoUsoApps",
                         "App: " + nombreDisplay
@@ -81,17 +83,6 @@ public class EspecificacionUsuario {
     public void accionConApp(){}
 
     public String obtenerNombreLegibleApp() {
-        if (contexto == null) {
-            return this.nombreApp;
-        }
-        final PackageManager pm = contexto.getPackageManager();
-        ApplicationInfo apinfo;
-        try {
-            apinfo = pm.getApplicationInfo(nombreApp, 0);
-        } catch (final PackageManager.NameNotFoundException e) {
-            apinfo = null;
-        }
-        final String nombre = (String) (apinfo != null ? pm.getApplicationLabel(apinfo) : nombreApp);
-        return nombre;
+        return this.nombreApp;
     }
 }

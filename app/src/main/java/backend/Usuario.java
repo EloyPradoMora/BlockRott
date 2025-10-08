@@ -18,8 +18,8 @@ public class Usuario {
         especificacionesUsuario = new ArrayList<>();
     }
 
-    public boolean agregarEspecificacionNueva(String nombreApp, long tiempoMaximoDeUso, Context contexto){
-        this.especificacionesUsuario.add(new EspecificacionUsuario(nombreApp, tiempoMaximoDeUso, contexto));
+    public boolean agregarEspecificacionNueva(String nombreApp, String nombrePaquete, long tiempoMaximoDeUso, Context contexto){
+        this.especificacionesUsuario.add(new EspecificacionUsuario(nombreApp, nombrePaquete,tiempoMaximoDeUso, contexto));
         return true;
     }
 
