@@ -6,6 +6,7 @@ import android.provider.Settings
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import backend.Usuario
 import com.example.blockrott.frontend.components.BlockButton
+import com.example.blockrott.frontend.components.SettingsButton
 
 @Composable
 fun HomeScreen(){
@@ -77,7 +79,19 @@ fun HomeScreen(){
     }
 
     Scaffold(
-        topBar = {},
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.End,
+            ) {
+                SettingsButton(
+                    modifier = Modifier.padding(8.dp),
+                    onClickAcount = {/* Metodo Acuenta */},
+                    onClickNotifications = {/* Metodo Notificaciónes */}
+                )
+            }
+        },
         bottomBar = {
             Box(
                 modifier = Modifier
