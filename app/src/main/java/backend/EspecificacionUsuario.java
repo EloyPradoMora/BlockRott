@@ -1,15 +1,14 @@
 package backend;
 
+import android.app.AlertDialog;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import android.content.DialogInterface;
 import android.util.Log;
-
+    
 import java.util.Calendar;
 import java.util.List;
-
 public class EspecificacionUsuario {
     String nombreApp;
     String nombrePaquete;
@@ -24,6 +23,7 @@ public class EspecificacionUsuario {
         this.tiempoUso = 0;
         this.tiempoMaximoUso = tiempoMaximoUso;
         this.contexto = contexto;
+        this.bloqueada = false;
     }
 
     public long obtenerTiempoDeUsoAplicacion() {
@@ -74,13 +74,37 @@ public class EspecificacionUsuario {
 
     public void bloquearApp(){
         bloqueada = true;
+        Log.d("BlockRott", "La app " + nombreApp + " ha sido marcada como bloqueada.");
     }
 
-    public void desploquearApp(){
+    public void desbloquearApp(){
         bloqueada = false;
+        Log.d("BlockRott", "La app " + nombreApp + " ha sido desbloqueada.");
+    }
+    public void accionConApp(){
+        if (bloqueada) {
+            BloqueoApp();
+        }
     }
 
-    public void accionConApp(){}
+    //Por ahora BloqueoApp solo tira una alerta cuando Bloqueda es true
+    private void BloqueoApp()   {
+        if (contexto == null) {
+            Log.e("BlockRott", "El contexto es nulo, no se puede mostrar la alerta.");
+            return;
+        }
+        new AlertDialog.Builder(contexto)
+                .setTitle("App Bloqueada")
+                .setMessage("Has excedido el tiempo de uso para la aplicación: " + nombreApp)
+                .setPositiveButton("Entendido", new DialogInterface.OnClickListener() {
+
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
 
     public String obtenerNombreLegibleApp() {
         return this.nombreApp;
