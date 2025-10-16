@@ -6,10 +6,9 @@ import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
-    
 import java.util.Calendar;
 import java.util.List;
-public class EspecificacionUsuario {
+public class EspecificacionApp {
     String nombreApp;
     String nombrePaquete;
     long tiempoUso;
@@ -17,7 +16,7 @@ public class EspecificacionUsuario {
     boolean bloqueada;
     private Context contexto;
 
-    public EspecificacionUsuario(String nombreApp, String nombrePaquete, long tiempoMaximoUso, Context contexto){
+    public EspecificacionApp(String nombreApp, String nombrePaquete, long tiempoMaximoUso, Context contexto){
         this.nombreApp = nombreApp;
         this.nombrePaquete= nombrePaquete;
         this.tiempoUso = 0;
@@ -79,16 +78,16 @@ public class EspecificacionUsuario {
 
     public void desbloquearApp(){
         bloqueada = false;
-        Log.d("BlockRott", "La app " + nombreApp + " ha sido desbloqueada.");
+        Log.d("BlockRott", "La app " + nombreApp + " ha sido marcada como desbloqueada.");
     }
     public void accionConApp(){
         if (bloqueada) {
-            BloqueoApp();
+            bloqueoApp();
         }
     }
 
     //Por ahora BloqueoApp solo tira una alerta cuando Bloqueda es true
-    private void BloqueoApp()   {
+    private void bloqueoApp()   {
         if (contexto == null) {
             Log.e("BlockRott", "El contexto es nulo, no se puede mostrar la alerta.");
             return;

@@ -43,23 +43,26 @@ fun HomeScreen(){
     var listaEstadisticas by remember { mutableStateOf(emptyList<UsageStats>()) }
     var tiempoTotal by remember { mutableStateOf("0m") }
 
+    //Para poblar a usuario una unica vez
+    val usuario = remember {
+        val tempUsuario = Usuario()
+        tempUsuario.agregarEspecificacionNueva("TikTok","com.zhiliaoapp.musically",0, context)
+        tempUsuario.agregarEspecificacionNueva("YouTube","com.google.android.youtube",0, context)
+        tempUsuario.agregarEspecificacionNueva("Reddit","com.reddit.frontpage",0, context)
+        tempUsuario.agregarEspecificacionNueva("Instagram","com.instagram.android",0, context)
+        tempUsuario
+    }
+
 
 
     fun actualizarEstadisticas(){
-        var tempUsuario = Usuario()
-        if (!tempUsuario.verificarPermisos(context)) {
+        if (!usuario.verificarPermisos(context)) {
             val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
                 data = Uri.fromParts("package", context.packageName, null)
             }
             context.startActivity(intent)
             return
         }
-
-        var usuario = Usuario()
-        usuario.agregarEspecificacionNueva("TikTok","com.zhiliaoapp.musically",0, context)
-        usuario.agregarEspecificacionNueva("YouTube","com.google.android.youtube",0, context)
-        usuario.agregarEspecificacionNueva("Reddit","com.reddit.frontpage",0, context)
-        usuario.agregarEspecificacionNueva("Instagram","com.instagram.android",0, context)
 
         val rawUseTimeString = usuario.revisarTiempos()
 
@@ -125,7 +128,7 @@ fun HomeScreen(){
                 AppStatistics(tiempoTotal, listaEstadisticas)
             }
             BlockButton(
-                onClick = {},
+                onClick = {usuario.bloquearApps(context)},
                 modifier = Modifier
                     .size(height = 300.dp, width = 300.dp),
             )
