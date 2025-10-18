@@ -3,6 +3,7 @@ package com.example.blockrott.frontend.screens
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,7 @@ import com.example.blockrott.frontend.components.UsageStats
 import com.example.blockrott.frontend.theme.AppTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import backend.Usuario
 import com.example.blockrott.frontend.components.BlockButton
@@ -125,13 +127,23 @@ fun HomeScreen(){
             verticalArrangement = Arrangement.Center
         ) {
             if (showStatistics){
-                AppStatistics(tiempoTotal, listaEstadisticas)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(Unit){
+                            detectTapGestures { showStatistics = false }
+                        },
+                    contentAlignment = Alignment.Center
+                ){
+                    AppStatistics(tiempoTotal, listaEstadisticas)
+                }
+            } else{
+                BlockButton(
+                    onClick = {},
+                    modifier = Modifier
+                        .size(height = 300.dp, width = 300.dp),
+                )
             }
-            BlockButton(
-                onClick = {usuario.bloquearApps(context)},
-                modifier = Modifier
-                    .size(height = 300.dp, width = 300.dp),
-            )
         }
     }
 }
