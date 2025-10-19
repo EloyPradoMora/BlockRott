@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -48,26 +49,30 @@ fun HomeScreen(){
     //Para poblar a usuario una unica vez
     val usuario = remember {
         val tempUsuario = Usuario()
-        tempUsuario.agregarEspecificacionNueva("TikTok","com.zhiliaoapp.musically",0, context)
-        tempUsuario.agregarEspecificacionNueva("YouTube","com.google.android.youtube",0, context)
-        tempUsuario.agregarEspecificacionNueva("Reddit","com.reddit.frontpage",0, context)
-        tempUsuario.agregarEspecificacionNueva("Instagram","com.instagram.android",0, context)
+        tempUsuario.agregarEspecificacionNueva("TikTok","com.zhiliaoapp.musically",10000, context)
+        tempUsuario.agregarEspecificacionNueva("YouTube","com.google.android.youtube",1200000, context)
+        tempUsuario.agregarEspecificacionNueva("Reddit","com.reddit.frontpage",10000, context)
+        tempUsuario.agregarEspecificacionNueva("Instagram","com.instagram.android",10000, context)
         tempUsuario
+    }
+
+    LaunchedEffect(Unit) {
+        verificarYPedirPermisosIniciales(context, usuario)
+        while(true) {
+            usuario.monitoreoApps()
+            kotlinx.coroutines.delay(60000L)
+        }
     }
 
 
 
     fun actualizarEstadisticas(){
-        if (!usuario.verificarPermisos(context)) {
-            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
-                data = Uri.fromParts("package", context.packageName, null)
-            }
-            context.startActivity(intent)
+        if (!usuario.verificarPermisosUsoEstadistica(context)) {
+            solicitarPermisoUsoEstadisticas(context)
             return
         }
 
         val rawUseTimeString = usuario.revisarTiempos()
-
         val listaTemporal: List<UsageStats> = rawUseTimeString.lines().filter { it.isNotBlank() }
             .mapNotNull { line ->
                 val parts = line.split(',')
@@ -139,7 +144,7 @@ fun HomeScreen(){
                 }
             } else{
                 BlockButton(
-                    onClick = {},
+                    onClick = {usuario.bloquearApps(context)},
                     modifier = Modifier
                         .size(height = 300.dp, width = 300.dp),
                 )
@@ -190,5 +195,31 @@ fun formatearMinutosAHorasMinutos(totalMinutes: Int): String {
         "${hours}h"
     } else {
         "${hours}h ${minutes}m"
+    }
+}
+
+private fun verificarYPedirPermisosIniciales(context: android.content.Context, usuario: Usuario) {
+    if (!usuario.verificarPermisosUsoEstadistica(context)) {
+        solicitarPermisoUsoEstadisticas(context)
+        return
+    }
+
+    if (!usuario.verificarPermisoSuperposicion(context)) {
+        solicitarPermisoSuperposicion(context)
+    }
+}
+
+private fun solicitarPermisoUsoEstadisticas(context: android.content.Context) {
+    val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS).apply {
+        data = Uri.fromParts("package", context.packageName, null)
+    }
+    context.startActivity(intent)
+}
+
+private fun solicitarPermisoSuperposicion(context: android.content.Context) {
+    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+            Uri.parse("package:" + context.packageName))
+        context.startActivity(intent)
     }
 }

@@ -5,6 +5,11 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.app.AppOpsManager;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.provider.Settings;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Calendar;
@@ -13,10 +18,10 @@ public class Usuario {
     private String nombreUsuario;
     private String idUsuario;
     private ArrayList<EspecificacionApp> especificacionesApp;
-    ConfiguracionVisual configuracionVisual;
-    ArrayList<Conexion> conexiones;
+    private ConfiguracionVisual configuracionVisual;
+    private ArrayList<Conexion> conexiones;
 
-    boolean bloqueoGlobal;
+    private boolean bloqueoGlobal;
 
     public Usuario(){
         especificacionesApp = new ArrayList<>();
@@ -43,31 +48,33 @@ public class Usuario {
     *@param
     *@return
     */
-    public boolean verificarPermisos(Context context){
+    public boolean verificarPermisosUsoEstadistica(Context context){
         try {
-            UsageStatsManager usageStatsManager =
-                    (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
+            AppOpsManager appOpsManager =
+                    (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
 
-            if (usageStatsManager == null) {
+            if (appOpsManager == null) {
                 return false;
             }
-            long currentTime = System.currentTimeMillis();
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.SECOND, -1);
-            long startTime = calendar.getTimeInMillis();
 
-            List<UsageStats> queryResult = usageStatsManager.queryUsageStats(
-                    UsageStatsManager.INTERVAL_DAILY,
-                    startTime,
-                    currentTime
+            int mode = appOpsManager.checkOpNoThrow(
+                    AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    android.os.Process.myUid(),
+                    context.getPackageName()
             );
-
-            return queryResult != null && !queryResult.isEmpty();
+            return mode == AppOpsManager.MODE_ALLOWED;
 
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean verificarPermisoSuperposicion(Context context){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return Settings.canDrawOverlays(context);
+        }
+        return true;
     }
 
     public void bloquearApps(Context context){
@@ -106,6 +113,12 @@ public class Usuario {
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
+        }
+    }
+
+    public void monitoreoApps(){
+        for (EspecificacionApp especifico: this.especificacionesApp) {
+            especifico.verificarLimiteTiempo();
         }
     }
 }
