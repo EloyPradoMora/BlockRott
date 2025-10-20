@@ -104,7 +104,7 @@ public class EspecificacionApp {
         if (contexto == null) {
             Log.e("BlockRott", "El contexto es nulo, no se puede mostrar la alerta.");
             return;
-        }
+        }/*
         AlertDialog.Builder builder = new AlertDialog.Builder(contexto);
         builder.setTitle("Límite de Tiempo")
                 .setMessage("¿Usar app por 5 minutos más?")
@@ -125,12 +125,12 @@ public class EspecificacionApp {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
         } else {
-            // Para versiones antiguas, se usaba TYPE_SYSTEM_ALERT
+            // Para versiones antiguas
             dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
         }
 
         dialog.setCanceledOnTouchOutside(false);
-        dialog.show();
+        dialog.show();                                                          */
     }
 
     public String obtenerNombreLegibleApp() {
