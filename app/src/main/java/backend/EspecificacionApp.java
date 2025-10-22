@@ -14,7 +14,7 @@ public class EspecificacionApp {
     private String nombrePaquete;
     private long tiempoUso;
     private long tiempoMaximoUso;
-    private boolean bloqueada;
+    protected boolean bloqueada;
     private Context contexto;
 
     public EspecificacionApp(String nombreApp, String nombrePaquete, long tiempoMaximoUso, Context contexto){
@@ -72,26 +72,10 @@ public class EspecificacionApp {
     }
     public String getNombreApp() { return nombreApp; }
 
-    public void bloquearApp(){
-        bloqueada = true;
-        Log.d("BlockRott", "La app " + nombreApp + " ha sido marcada como bloqueada.");
-    }
-
-    public void desbloquearApp(){
-        bloqueada = false;
-        Log.d("BlockRott", "La app " + nombreApp + " ha sido marcada como desbloqueada.");
-    }
-    public void accionConApp(){
-        if (bloqueada) {
-            bloqueoApp();
-        }
-    }
-
     public void verificarLimiteTiempo() {
         this.tiempoUso = obtenerTiempoDeUsoAplicacion();
         if (this.tiempoUso > tiempoMaximoUso) {
             this.bloqueada = true;
-            accionConApp();
         } else {
             this.bloqueada = false;
         }

@@ -78,15 +78,11 @@ public class Usuario {
     }
 
     public void bloquearApps(Context context){
+        this.bloqueoGlobal = !this.bloqueoGlobal;
         for (EspecificacionApp especifico: this.especificacionesApp) {
-            if (!bloqueoGlobal) {
-                especifico.bloquearApp();
-            }else {
-                especifico.desbloquearApp();
-            }
+                especifico.bloqueada = this.bloqueoGlobal;
         }
         mostrarMensajeDeBloqueo(context);
-        this.bloqueoGlobal = !bloqueoGlobal;
     }
     private void mostrarMensajeDeBloqueo(Context context){
         if(!bloqueoGlobal){
