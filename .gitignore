@@ -16,3 +16,4 @@ local.properties
 # Archivo de confirguracion Android Studio
 /.idea/misc.xml
 .idea/inspectionProfiles/Project_Default.xml
+backend/src/main/resources/application.properties

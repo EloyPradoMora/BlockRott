@@ -14,6 +14,9 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="BlockRott.backend" options="-parameters" />
+      <module name="BlockRott.backend.main" options="-parameters" />
+      <module name="BlockRott.backend.test" options="-parameters" />
       <module name="BlockRott.springboot-backend" options="-parameters" />
       <module name="BlockRott.springboot-backend.main" options="-parameters" />
       <module name="BlockRott.springboot-backend.test" options="-parameters" />
