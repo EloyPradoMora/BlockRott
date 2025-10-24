@@ -14,13 +14,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "reporte_semanal", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"usuario_id", "nombre_app", "semana_inicio"})
 })
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class ReporteSemanal {
 
