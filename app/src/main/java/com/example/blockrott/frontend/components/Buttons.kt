@@ -1,8 +1,11 @@
 package com.example.blockrott.frontend.components
 
+import androidx.compose.material3.Switch
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -10,11 +13,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +34,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.blockrott.frontend.theme.ComponentBackground
 import androidx.compose.runtime.*
+import androidx.compose.ui.unit.sp
+import com.example.blockrott.frontend.theme.SecondaryColor
+import com.example.blockrott.frontend.theme.TextSecondary
+import com.example.blockrott.frontend.theme.TimerTextSelected
+import com.example.blockrott.frontend.theme.TimerTextUnselected
 
 @Composable
 fun StatisticsButton(
@@ -95,4 +109,15 @@ fun SettingsButton(
             )
         }
     }
+}
+
+@Composable
+fun SwitchBlock(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Switch(
+        checked = checked,
+        onCheckedChange = onCheckedChange
+    )
 }
