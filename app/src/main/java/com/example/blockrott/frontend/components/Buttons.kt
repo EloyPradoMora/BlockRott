@@ -121,3 +121,64 @@ fun SwitchBlock(
         onCheckedChange = onCheckedChange
     )
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MySegmentdButton(){
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    val options = listOf("Apps", "Min")
+
+    Surface(
+        color = TimerTextUnselected,
+        shape = RoundedCornerShape(25.dp),
+        modifier = Modifier.fillMaxWidth(0.7f)
+    ) {
+        SingleChoiceSegmentedButtonRow(
+            modifier = Modifier.padding(4.dp)
+        ) {
+            options.forEachIndexed { index, label ->
+                SegmentedButton(
+                    shape = RoundedCornerShape(20.dp),
+                    onClick = { selectedIndex = index },
+                    selected = index == selectedIndex,
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContentColor = TimerTextSelected,
+                        inactiveContentColor = TimerTextSelected,
+                        activeContainerColor = TextSecondary,
+                        inactiveContainerColor = TimerTextUnselected
+                    ),
+                    label = {
+                        Text(
+                            label,
+                            modifier = Modifier.padding(horizontal = 10.dp)
+                        )
+                    },
+                    icon = {}
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ConfirmationButton(
+    onClickConfirm: () -> Unit,
+    text: String
+){
+    Button(
+        modifier = Modifier
+            .height(70.dp)
+            .fillMaxWidth(0.5f)
+            .padding(8.dp),
+        onClick = onClickConfirm,
+        colors = ButtonDefaults.buttonColors(
+            contentColor = Color.White,
+            containerColor = SecondaryColor
+        )
+    ) {
+        Text(
+            text = text,
+            fontSize = 22.sp,
+        )
+    }
+}
