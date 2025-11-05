@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,19 +23,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.blockrott.frontend.theme.AppTheme
 import com.example.blockrott.frontend.theme.ComponentBackground
 import com.example.blockrott.frontend.theme.ComponentSurface
-import com.example.blockrott.frontend.theme.SecondaryColor
-import com.example.blockrott.frontend.theme.TextSecondary
-import com.example.blockrott.frontend.theme.TimerTextSelected
 
 data class UsageStats(val appName:String, val usageTime: String)
 
@@ -124,6 +117,55 @@ fun BottomSheet(
     }
 }
 
+@Composable
+fun BlockConfig(
+    appsList: List<String>,
+    onClickConfirm: () -> Unit
+){
+    Scaffold(
+        containerColor = ComponentBackground,
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(ComponentBackground),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                MySegmentdButton()
+            }
+        },
+        bottomBar = {
+            Column(
+                modifier = Modifier
+                    .height(80.dp)
+                    .fillMaxWidth()
+                    .background(ComponentSurface),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ConfirmationButton(
+                    onClickConfirm = onClickConfirm,
+                    text = "Confirmar"
+                )
+            }
+        }
+    ) {
+        innerContent ->
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(innerContent)
+                .background(ComponentBackground)
+        ) {
+            Spacer(modifier = Modifier.padding(8.dp))
+            appsList.forEach { app ->
+                BlockApps(appName = app, true)
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun AppPreview(){
@@ -136,10 +178,6 @@ fun AppPreview(){
     AppTheme {
         AppStatistics("1h 26 min", sampleStats)
     }
-
-    HojaInferior(
-        true, {}, content = {}
-    )
      */
     val appsPreview = listOf(
         "Instagram","Facebook","TikTok","Youtube","Reddit","Discord"
