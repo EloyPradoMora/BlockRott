@@ -15,6 +15,7 @@ fun tiempoAMinutos(timeString: String): Int {
         total += minutes
     }
     return total
+}
 
 fun calcularTiempoTotal(listaTemporal: List<UsageStats>): Int {
     val tiempoEnMinutos = listaTemporal.sumOf { usageStat ->
