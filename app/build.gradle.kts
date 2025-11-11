@@ -48,6 +48,7 @@ dependencies {
     // Dependencias de Compose y sus auxiliares
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     // Esto gestiona las versiones del compose, para que las dependencias usen
     implementation(platform(libs.androidx.compose.bom))
