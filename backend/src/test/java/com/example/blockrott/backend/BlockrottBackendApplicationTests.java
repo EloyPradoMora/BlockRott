@@ -1,5 +1,6 @@
 package com.example.blockrott.backend;
 
+import com.example.blockrott.backend.entidades.Usuario;
 import com.example.blockrott.backend.repositorio.RepositorioUsuario;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,4 +29,14 @@ class BlockrottBackendApplicationTests {
 		connection.close();
 	}
 
+	@Test
+	void pruebaBusquedaUsuarios() {
+		System.out.println("\nPRUEBA 2: BUSQUEDA USUARIO ESPECIFICO");
+		Usuario usuario = repositorioUsuario.findByCorreo("usuario2@test.com")
+				.orElse(null);
+		assertNotNull(usuario, "Deberia encontrar a 'usuario2@test.com'");
+		assertEquals("Usuario Dos", usuario.getNombreUsuario(), "El nombre no coincide");
+
+		System.out.println(" OK: 'Usuario Dos' encontrado");
+	}
 }
