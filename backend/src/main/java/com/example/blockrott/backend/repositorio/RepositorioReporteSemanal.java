@@ -4,6 +4,9 @@ import com.example.blockrott.backend.entidades.ReporteSemanal;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface RepositorioReporteSemanal extends JpaRepository<ReporteSemanal, Long> {
 
+    List<ReporteSemanal> findByUsuario_Correo(String correo);
 }

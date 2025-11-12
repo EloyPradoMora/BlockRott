@@ -7,11 +7,13 @@ import com.example.blockrott.backend.entidades.Usuario;
 import com.example.blockrott.backend.repositorio.RepositorioUsuario;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Service
 public class ServicioUsuario {
     private final RepositorioUsuario repositorioUsuario;
     private final PasswordEncoder passwordEncoder;
@@ -31,5 +33,18 @@ public class ServicioUsuario {
         nuevoUsuario.setContrasenaHash(passwordEncoder.encode(solicitud.getContrasena()));
         nuevoUsuario.setFechaCreacion(LocalDateTime.now());
         return repositorioUsuario.save(nuevoUsuario);
+    }
+
+    public RespuestaUsuario obtenerUsuarioPorCorreo(String correo) {
+        Usuario usuario = repositorioUsuario.findByCorreo(correo)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        RespuestaUsuario respuesta = new RespuestaUsuario();
+        respuesta.setId(usuario.getId());
+        respuesta.setCorreo(usuario.getCorreo());
+        respuesta.setNombreUsuario(usuario.getNombreUsuario());
+        respuesta.setFechaCreacion(usuario.getFechaCreacion());
+
+        return respuesta;
     }
 }
