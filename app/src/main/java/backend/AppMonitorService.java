@@ -69,14 +69,20 @@ public class AppMonitorService extends Service {
         }
         usuario.monitoreoApps();
         String foregroundApp = getForegroundAppPackageName();
+        if (foregroundApp != null && foregroundApp.equals(getPackageName())) {
+            monitoringHandler.postDelayed(monitoringRunnable, MONITOR_INTERVAL_MS);
+            return; // estamos en blockrott no hacemos nada, pero hay que seguir monitoriando
+        }
         if (foregroundApp == null || foregroundApp.equals(getPackageName())) {
             monitoringHandler.postDelayed(monitoringRunnable, MONITOR_INTERVAL_MS);
             return; //terminamos altiro si es que la app actual del usuario no esta en la lista de apps a bloquear
         }
+        boolean appIsBlocked = false;
         boolean isGlobalBlock = usuario.isBloqueoGlobal();
         for (EspecificacionApp app : usuario.getEspecificacionesApp()) {
             if (app.getNombrePaquete().equals(foregroundApp)) {
                 if (isGlobalBlock || app.isBloqueada()) {
+                    appIsBlocked = true;
                     if (!foregroundApp.equals(lastBlockedPackage)) {
                         Log.d(TAG, "Bloqueando app: " + foregroundApp);
                         showBlockerScreen(foregroundApp);
@@ -85,13 +91,16 @@ public class AppMonitorService extends Service {
                 break; //Terminamos aqui ya que encontramos una app para bloquear
             }
         }
+        if (!appIsBlocked) { //esto esta para que si el usuario se sale de la app bloqueada y trata de volver a entrar el bloqeo salte de nuevo
+            if (!lastBlockedPackage.isEmpty()) {
+                Log.d(TAG, "Clearing last blocked app: " + lastBlockedPackage);
+            }
+            lastBlockedPackage = "";
+        }
         monitoringHandler.postDelayed(monitoringRunnable, MONITOR_INTERVAL_MS);
     }
 
     private void showBlockerScreen(String packageName) {
-        if (packageName.equals(lastBlockedPackage)) {
-            return; //termina altiro si ya no esta en la app que queriamos bloquear
-        }
         lastBlockedPackage = packageName;
         Intent intent = new Intent(this, BlockerActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);

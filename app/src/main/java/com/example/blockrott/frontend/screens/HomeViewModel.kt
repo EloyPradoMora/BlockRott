@@ -45,7 +45,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun actualizarEstadisticas(context: Context) {
         if (usuario.especificacionesApp.isEmpty()) {
             //tiempo de un minuto es para demostrar que funciona ELIMINAR AL IMPLEMENTAR UNA FORMA DE CAMBIAR ESTE TIEMPO
-            usuario.agregarEspecificacionNueva("YouTube", "com.google.android.youtube", 60000L)
+            usuario.agregarEspecificacionNueva("YouTube", "com.google.android.youtube", 900000L)
             usuario.agregarEspecificacionNueva("Instagram", "com.instagram.android", 60000L)
         }
 
