@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.WindowManager;
 import java.util.Calendar;
 import java.util.List;
+import android.content.Context;
+import android.util.Log;
 public class EspecificacionApp {
     private String nombreApp;
     private String nombrePaquete;
@@ -22,7 +24,7 @@ public class EspecificacionApp {
         this.nombrePaquete= nombrePaquete;
         this.tiempoUso = 0;
         this.tiempoMaximoUso = tiempoMaximoUso;
-        this.contexto = contexto;
+        this.contexto = contexto.getApplicationContext();
         this.bloqueada = false;
     }
 
@@ -82,42 +84,11 @@ public class EspecificacionApp {
         Log.d("BlockRott", nombreApp + " - Uso Actual: " + this.tiempoUso +
                 ", Límite: " + tiempoMaximoUso + ", Bloqueada: " + this.bloqueada);
     }
-
-    //Por ahora BloqueoApp solo tira una alerta cuando Bloqueda es true
-    private void bloqueoApp()   {
-        if (contexto == null) {
-            Log.e("BlockRott", "El contexto es nulo, no se puede mostrar la alerta.");
-            return;
-        }/*
-        AlertDialog.Builder builder = new AlertDialog.Builder(contexto);
-        builder.setTitle("Límite de Tiempo")
-                .setMessage("¿Usar app por 5 minutos más?")
-                .setPositiveButton("Ver anuncio", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.d("BlockRott", "'Ver anuncio' presionado.");
-                        dialog.dismiss();
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        Log.d("BlockRott", "Botón 'No' presionado.");
-                        dialog.dismiss();
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_info);
-        AlertDialog dialog = builder.create();
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY);
-        } else {
-            // Para versiones antiguas
-            dialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        }
-
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.show();                                                          */
-    }
-
     public String obtenerNombreLegibleApp() {
         return this.nombreApp;
     }
+
+    public String getNombrePaquete() { return this.nombrePaquete; }
+
+    public boolean isBloqueada() { return this.bloqueada; }
 }

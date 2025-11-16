@@ -6,15 +6,17 @@ import android.net.Uri
 import android.provider.Settings
 import backend.Usuario
 
-fun verificarYPedirPermisosIniciales(context: Context, usuario: Usuario) {
+fun verificarYPedirPermisosIniciales(context: Context, usuario: Usuario): Boolean {
     if (!usuario.verificarPermisosUsoEstadistica(context)) {
         solicitarPermisoUsoEstadisticas(context)
-        return
     }
 
     if (!usuario.verificarPermisoSuperposicion(context)) {
         solicitarPermisoSuperposicion(context)
     }
+    if (usuario.verificarPermisosUsoEstadistica(context) && usuario.verificarPermisoSuperposicion(context)) {
+        return true
+    } else {return false}
 }
 
 private fun solicitarPermisoUsoEstadisticas(context: Context) {

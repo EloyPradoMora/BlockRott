@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Calendar;
 
 public class Usuario {
+    private static volatile Usuario instance;
+    private Context applicationContext;
     private String nombreUsuario;
     private String idUsuario;
     private ArrayList<EspecificacionApp> especificacionesApp;
@@ -22,15 +24,15 @@ public class Usuario {
     private ArrayList<Conexion> conexiones;
 
     private boolean bloqueoGlobal;
-
-    public Usuario(){
-        especificacionesApp = new ArrayList<>();
+    public boolean agregarEspecificacionNueva(String nombreApp, String nombrePaquete, long tiempoMaximoDeUso){
+        this.especificacionesApp.add(new EspecificacionApp(nombreApp, nombrePaquete,tiempoMaximoDeUso, this.applicationContext));
+        return true;
     }
 
-    public boolean agregarEspecificacionNueva(String nombreApp, String nombrePaquete, long tiempoMaximoDeUso, Context contexto){
-        this.especificacionesApp.add(new EspecificacionApp(nombreApp, nombrePaquete,tiempoMaximoDeUso, contexto));
-        bloqueoGlobal = false;
-        return true;
+    private Usuario(Context context){
+        this.applicationContext = context.getApplicationContext(); // Importante
+        especificacionesApp = new ArrayList<>();
+        this.bloqueoGlobal = false;
     }
 
     public String revisarTiempos(){
@@ -79,13 +81,10 @@ public class Usuario {
 
     public void bloquearApps(Context context){
         this.bloqueoGlobal = !this.bloqueoGlobal;
-        for (EspecificacionApp especifico: this.especificacionesApp) {
-                especifico.bloqueada = this.bloqueoGlobal;
-        }
         mostrarMensajeDeBloqueo(context);
     }
     private void mostrarMensajeDeBloqueo(Context context){
-        if(!bloqueoGlobal){
+        if(bloqueoGlobal){
             new AlertDialog.Builder(context)
                     .setTitle("App Bloqueada")
                     .setMessage("Se han bloqueado las aplicaciones")
@@ -116,5 +115,23 @@ public class Usuario {
         for (EspecificacionApp especifico: this.especificacionesApp) {
             especifico.verificarLimiteTiempo();
         }
+    }
+
+    public static Usuario getInstance(Context context) {
+        if (instance == null) {
+            synchronized (Usuario.class) {
+                if (instance == null) {
+                    instance = new Usuario(context.getApplicationContext());
+                }
+            }
+        }
+        return instance;
+    }
+
+    public boolean isBloqueoGlobal() {
+        return this.bloqueoGlobal;
+    }
+    public ArrayList<EspecificacionApp> getEspecificacionesApp() {
+        return this.especificacionesApp;
     }
 }
