@@ -38,16 +38,20 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun verificarPermisos(context: Context) {
         val permisosConcedidos = verificarYPedirPermisosIniciales(context, usuario)
         if (permisosConcedidos) {
+            inicializarApps(getApplication())
             iniciarServicioDeMonitoreo(getApplication())
         }
     }
 
-    fun actualizarEstadisticas(context: Context) {
+    private fun inicializarApps(context: Context) {
         if (usuario.especificacionesApp.isEmpty()) {
-            //tiempo de un minuto es para demostrar que funciona ELIMINAR AL IMPLEMENTAR UNA FORMA DE CAMBIAR ESTE TIEMPO
             usuario.agregarEspecificacionNueva("YouTube", "com.google.android.youtube", 180000L)
-            usuario.agregarEspecificacionNueva("Instagram", "com.instagram.android", 60000L)
+            usuario.agregarEspecificacionNueva("Instagram", "com.instagram.android", 180000L)
+            usuario.agregarEspecificacionNueva("TikTok", "com.zhiliaoapp.musically", 180000L)
         }
+    }
+    fun actualizarEstadisticas(context: Context) {
+        inicializarApps(context)
 
         if (!usuario.verificarPermisosUsoEstadistica(context)) {
             verificarYPedirPermisosIniciales(context, usuario)
