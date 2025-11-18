@@ -27,6 +27,9 @@ public class AppMonitorService extends Service {
     private static final String CHANNEL_ID = "AppMonitorChannel";
     private static final int NOTIFICATION_ID = 1;
     private static final long MONITOR_INTERVAL_MS = 1500;
+    private static final String EXTRA_BLOCK_REASON = "BLOCK_REASON";
+    private static final String REASON_TIME_LIMIT = "TIME_LIMIT";
+    private static final String REASON_GLOBAL_LOCK = "GLOBAL_LOCK";
     private Handler monitoringHandler;
     private Runnable monitoringRunnable;
     private Usuario usuario;
@@ -81,14 +84,20 @@ public class AppMonitorService extends Service {
         boolean isGlobalBlock = usuario.isBloqueoGlobal();
         for (EspecificacionApp app : usuario.getEspecificacionesApp()) {
             if (app.getNombrePaquete().equals(foregroundApp)) {
-                if (isGlobalBlock || app.isBloqueada()) {
+                String blockReason = null;
+                if (isGlobalBlock) {
+                    blockReason = REASON_GLOBAL_LOCK;
+                } else if (app.isBloqueada()) {
+                    blockReason = REASON_TIME_LIMIT;
+                }
+                if (blockReason != null) {
                     appIsBlocked = true;
                     if (!foregroundApp.equals(lastBlockedPackage)) {
-                        Log.d(TAG, "Bloqueando app: " + foregroundApp);
-                        showBlockerScreen(foregroundApp);
+                        Log.d(TAG, "Bloqueando app: " + foregroundApp + " - Reason: " + blockReason);
+                        showBlockerScreen(foregroundApp, blockReason);
                     }
                 }
-                break; //Terminamos aqui ya que encontramos una app para bloquear
+                break;
             }
         }
         if (!appIsBlocked) { //esto esta para que si el usuario se sale de la app bloqueada y trata de volver a entrar el bloqeo salte de nuevo
@@ -100,11 +109,15 @@ public class AppMonitorService extends Service {
         monitoringHandler.postDelayed(monitoringRunnable, MONITOR_INTERVAL_MS);
     }
 
-    private void showBlockerScreen(String packageName) {
+    private void showBlockerScreen(String packageName, String reason) {
+        if (packageName.equals(lastBlockedPackage)) {
+            return;
+        }
         lastBlockedPackage = packageName;
         Intent intent = new Intent(this, BlockerActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.putExtra("PACKAGE_NAME", packageName);
+        intent.putExtra(EXTRA_BLOCK_REASON, reason);
         startActivity(intent);
     }
 
