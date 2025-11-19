@@ -67,4 +67,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(libs.mockito.core)
+    testImplementation("org.robolectric:robolectric:4.16")
+    testImplementation("androidx.test:core:1.7.0")
 }
