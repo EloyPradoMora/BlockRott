@@ -124,10 +124,11 @@ fun SwitchBlock(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MySegmentdButton(){
-    var selectedIndex by remember { mutableIntStateOf(0) }
-    val options = listOf("Apps", "Min")
-
+fun MySegmentdButton(
+    options: List<String>,
+    selectedIndex: Int,
+    onOptionSelected: (Int) -> Unit
+){
     Surface(
         color = TimerTextUnselected,
         shape = RoundedCornerShape(25.dp),
@@ -139,7 +140,7 @@ fun MySegmentdButton(){
             options.forEachIndexed { index, label ->
                 SegmentedButton(
                     shape = RoundedCornerShape(20.dp),
-                    onClick = { selectedIndex = index },
+                    onClick = { onOptionSelected(index)},
                     selected = index == selectedIndex,
                     colors = SegmentedButtonDefaults.colors(
                         activeContentColor = TimerTextSelected,
