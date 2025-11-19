@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.blockrott.frontend.theme.ComponentBackground
 import com.example.blockrott.frontend.theme.ComponentSurface
-import com.example.blockrott.frontend.theme.PrimaryColor
 
 @Composable
 fun UsedApps(
@@ -53,11 +52,13 @@ fun UsedApps(
 }
 
 @Composable
-fun BlockApps(
+fun SwitchApp(
     appName: String,
-    initialChecked: Boolean
+    initialChecked: Boolean,
+    selectedApps: MutableList<String>
 ) {
-    var isBlocked by remember { mutableStateOf(initialChecked) }
+    var isChecked by remember { mutableStateOf(initialChecked) }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -76,9 +77,56 @@ fun BlockApps(
         )
         Spacer(Modifier.weight(1f))
         SwitchBlock(
-            checked = isBlocked,
+            checked = isChecked,
             onCheckedChange = { newValue ->
-                isBlocked = newValue
+                isChecked = newValue
+                if (newValue){
+                    if (!selectedApps.contains(appName)){
+                        selectedApps.add(appName)
+                    }
+                } else {
+                    selectedApps.remove(appName)
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun SwitchTime(
+    timeConfig: Int,
+    initialChecked: Boolean,
+    onMinSelected: (Int) -> Unit
+
+) {
+    val visualTime = "$timeConfig min"
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .background(ComponentSurface)
+            .border(
+                BorderStroke(1.dp, Color.Gray),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = visualTime,
+            fontSize = 22.sp,
+        )
+        Spacer(Modifier.weight(1f))
+        SwitchBlock(
+            checked = initialChecked,
+            onCheckedChange = { newValue ->
+                if (newValue) {
+                    onMinSelected(timeConfig)
+                } else {
+                    // El tiempo de bloqueo vuelve a ser 0
+                    onMinSelected(0)
+                }
             }
         )
     }
