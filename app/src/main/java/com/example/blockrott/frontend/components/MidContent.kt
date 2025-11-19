@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.blockrott.frontend.TestSelectedConfig
 import com.example.blockrott.frontend.theme.ComponentBackground
 import com.example.blockrott.frontend.theme.ComponentSurface
 
@@ -166,7 +165,7 @@ fun BlockConfig(
                             SI LO ESTA GENERAR UN MENSAJE DE [ERROR], SI NO LO ES ->
                             SE CIERRA LA VENTANA Y LLAMA EL PROCESO DE BLOQUEO
                         */
-                        onClickConfirm = {selectedIndex = 10}
+                        onClickConfirm = onClickConfirm
                     )
                 } else {
                     ConfirmationButton(
@@ -189,8 +188,6 @@ fun BlockConfig(
             Spacer(modifier = Modifier.padding(8.dp))
             if (selectedIndex == 0) {
                 AppConfig(appsList = appsList, selectedApps = selectedApps)
-            } else if (selectedIndex == 10){
-                TestSelectedConfig(selectedApps,selectedMin)
             }
             else {
                 TimeConfig(
