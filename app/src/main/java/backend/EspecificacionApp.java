@@ -91,4 +91,9 @@ public class EspecificacionApp {
     public String getNombrePaquete() { return this.nombrePaquete; }
 
     public boolean isBloqueada() { return this.bloqueada; }
+
+    public void agregarTiempoMaximoUso(long extensionMillis) {
+        this.tiempoMaximoUso += extensionMillis;
+        Log.d("BlockRott", nombreApp + " - Límite extendido por " + extensionMillis + "ms. Nuevo Límite: " + tiempoMaximoUso);
+    }
 }

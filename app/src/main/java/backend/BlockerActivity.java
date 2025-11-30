@@ -11,6 +11,7 @@ import com.example.blockrott.R;
 public class BlockerActivity extends AppCompatActivity {
     private static final String REASON_TIME_LIMIT = "TIME_LIMIT";
     private static final String REASON_GLOBAL_LOCK = "GLOBAL_LOCK";
+    private static final long EXTENSION_TIME_MS = 10 * 60 * 1000L; //10 minutos, para cambiar el tiempo cambiar el primer numero solamente
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,7 @@ public class BlockerActivity extends AppCompatActivity {
                 closeButton.setText("Ver anuncio para usar por 10 minutos mas");
                 closeButton.setOnClickListener(v -> {
                     //IMPORTANTE
+                    Usuario.getInstance(getApplicationContext()).extenderTiempoLimite(packageName, EXTENSION_TIME_MS);
                     // Aqui agregamos el anuncio mas adelante
                     //IMPORTATNE
                     finish();
