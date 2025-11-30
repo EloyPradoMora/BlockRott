@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.google.mobile.ads)
 
     // Dependencias de Compose y sus auxiliares
     implementation(libs.androidx.lifecycle.runtime.ktx)

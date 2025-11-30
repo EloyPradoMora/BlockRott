@@ -1,18 +1,29 @@
 package backend;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.view.View;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.activity.OnBackPressedCallback;
 import com.example.blockrott.R;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
 public class BlockerActivity extends AppCompatActivity {
     private static final String REASON_TIME_LIMIT = "TIME_LIMIT";
     private static final String REASON_GLOBAL_LOCK = "GLOBAL_LOCK";
     private static final long EXTENSION_TIME_MS = 10 * 60 * 1000L; //10 minutos, para cambiar el tiempo cambiar el primer numero solamente
 
+    private static final String TAG = "BlockerActivityAd";
+    private RewardedAd rewardedAd;
+    private String adUnitId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,6 +36,9 @@ public class BlockerActivity extends AppCompatActivity {
         String packageName = getIntent().getStringExtra("PACKAGE_NAME");
         String blockReason = getIntent().getStringExtra("BLOCK_REASON");
 
+        adUnitId = getString(R.string.ad_unit_rewarded);
+        loadRewardedAd(adUnitId);
+
         if (packageName != null) {
             appNameView.setText(packageName);
 
@@ -32,11 +46,13 @@ public class BlockerActivity extends AppCompatActivity {
                 messageView.setText("¡Límite de tiempo alcanzado! ¿Quieres una extensión?");
                 closeButton.setText("Ver anuncio para usar por 10 minutos mas");
                 closeButton.setOnClickListener(v -> {
-                    //IMPORTANTE
-                    Usuario.getInstance(getApplicationContext()).extenderTiempoLimite(packageName, EXTENSION_TIME_MS);
-                    // Aqui agregamos el anuncio mas adelante
-                    //IMPORTATNE
-                    finish();
+                    if (rewardedAd != null) {
+                        showRewardedAd(packageName); // Mostrar anuncio si está cargado
+                    } else {
+                        // Opcional: Si el anuncio no está listo, notificar al usuario.
+                        Log.d(TAG, "Anuncio de recompensa aún no está cargado.");
+                        // Aquí podrías mostrar un Toast al usuario
+                    }
                 });
 
             } else if (REASON_GLOBAL_LOCK.equals(blockReason)) {
@@ -61,5 +77,35 @@ public class BlockerActivity extends AppCompatActivity {
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
+    }
+
+    private void loadRewardedAd(String adUnitId) {
+        AdRequest adRequest = new AdRequest.Builder().build();
+        RewardedAd.load(this, adUnitId, adRequest, new RewardedAdLoadCallback() {
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.d(TAG, "Anuncio fallo en cargar: " + loadAdError.toString());
+                rewardedAd = null;
+            }
+
+            @Override
+            public void onAdLoaded(@NonNull RewardedAd ad) {
+                rewardedAd = ad;
+                Log.d(TAG, "Anuncio Cargado.");
+            }
+        });
+    }
+
+    private void showRewardedAd(String packageName) {
+        if (rewardedAd == null) {
+            Log.e(TAG, "El auncio de recompensa aun no esta listo.");
+            return;
+        }
+        rewardedAd.show(this, rewardItem -> {
+            Log.d(TAG, "El usuario gana: " + rewardItem.getAmount());
+            Usuario.getInstance(getApplicationContext()).extenderTiempoLimite(packageName, EXTENSION_TIME_MS);
+            finish();
+        });
+        loadRewardedAd(adUnitId);
     }
 }
