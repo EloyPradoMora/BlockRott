@@ -40,7 +40,9 @@ fun HomeScreen(
     val context = LocalContext.current
     // Recolecta el estado del ViewModel
     val uiState by viewModel.uiState.collectAsState()
-
+    // agregar una lista de promedio semanal
+    val weekList = listOf(2.37F,6.67F,2.1F,1.2F,5.13F,7.1F,3.4F)
+    val weekAvarege = "3h 59min"
     // Efecto para verificar permisos una sola vez al iniciar
     LaunchedEffect(Unit) {
         viewModel.verificarPermisos(context)
@@ -98,7 +100,12 @@ fun HomeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     // Usa los valores de uiState
-                    AppStatistics(uiState.tiempoTotal, uiState.listaEstadisticas)
+                    AppStatistics(
+                        uiState.tiempoTotal,
+                        uiState.listaEstadisticas,
+                        weekAvarege,
+                        weekList
+                    )
                 }
             } else {
                 BlockButton(
