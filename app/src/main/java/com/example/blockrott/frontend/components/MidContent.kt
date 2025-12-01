@@ -26,6 +26,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -105,13 +106,16 @@ fun WeekStatistics(
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(12.dp)
+        modifier = Modifier
+            .padding(12.dp)
+            .testTag("WeekStatsContainer")
     ) {
         Text(
             text = "Promedio     \n     Semanal",
             fontSize = 36.sp,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.testTag("Prom Semanal")
         )
         Spacer(Modifier.height(16.dp))
 
@@ -142,7 +146,9 @@ fun AppStatisticsContent(usedApps: List<UsageStats>){
         Text(
             text = "Apps mas usadas",
             fontSize = 18.sp,
-            modifier = Modifier.padding(start = 10.dp,bottom = 5.dp)
+            modifier = Modifier
+                .padding(start = 10.dp,bottom = 5.dp)
+                .testTag("AppContentTitle")
         )
         Column(
             modifier = Modifier

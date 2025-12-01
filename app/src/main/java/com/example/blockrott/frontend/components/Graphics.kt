@@ -15,6 +15,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,7 +29,7 @@ fun DailyPieChart(
 ){
     val total = data.sumOf { it.percentage }
     val gap = 2f
-    Canvas(modifier = modifier) {
+    Canvas(modifier = modifier.testTag("DailyPieChartCanvas")) {
         if (total == 0.0) return@Canvas
         var startAngle = -90f
 
@@ -62,6 +63,7 @@ fun WeeklyBarChart(
         modifier = Modifier
             .height(180.dp)
             .fillMaxWidth()
+            .testTag("WeeklyBarChartCanvas")
     ) {
         val leftPadding = 2.dp.toPx()
         val bottomPadding = 24.dp.toPx()
@@ -96,7 +98,10 @@ fun WeeklyBarChart(
         )
     }
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("WeeklyBarChartLabels")
+        ,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         labels.forEach {
