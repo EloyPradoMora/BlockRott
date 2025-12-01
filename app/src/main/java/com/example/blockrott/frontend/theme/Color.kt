@@ -20,3 +20,11 @@ val TextSecondary = Color(0xFF4C4C4C)
 val TimerBackground = Color(0xF0707070)
 val TimerTextSelected = Color(0xFFFFFFFF)
 val TimerTextUnselected = Color(0xFFADADAD)
+
+//  APP Colors 
+val Facebook = Color(0xFF1E2796)
+val Instagram = Color(0xFFB6267C)
+val TikTok = Color(0xFF000000)
+val Youtube = Color(0xFFAF0B0B)
+val Discord = Color(0xFF6226B6)
+val Reddit = Color(0xFFFF572D)

@@ -26,29 +26,40 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.blockrott.frontend.theme.ComponentBackground
-import com.example.blockrott.frontend.theme.ComponentSurface
+import com.example.blockrott.frontend.theme.*
+import com.example.blockrott.frontend.utils.FrontendUtils
 
 data class UsageStats(val appName:String, val usageTime: String)
-
 @Composable
 fun AppStatistics(
-    horasDeUso : String,
-    usedApps: List<UsageStats>
+    useHours : String,
+    usedApps: List<UsageStats>,
+    weeklyAverage: String,
+    dailyHours: List<Float>
 ){
+    val utils = FrontendUtils()
+    val week = listOf("Lun","Mar","Mié","Jue","Vie","Sáb","Dom")
+    val statistics = listOf("Hoy", "Semanal")
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    val dataList = remember(usedApps) {
+        usedApps.map { data ->
+            PieChartEntry(
+                percentage = utils.totalMinutes(data.usageTime),
+                color = utils.colorApp(data.appName)
+            )
+        }
+    }
     ElevatedCard(
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = ComponentSurface
-        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = ComponentSurface),
         shape = RoundedCornerShape(20.dp),
         modifier = Modifier
-            .size(width = 350.dp, height = 450.dp)
+            .size(width = 350.dp, height = 550.dp)
     ) {
         Column(
             modifier = Modifier
@@ -57,41 +68,90 @@ fun AppStatistics(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ){
-                Text(
-                    text = horasDeUso,
-                    fontSize = 35.sp,
-                    modifier = Modifier.padding(top = 30.dp)
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(
-                        BorderStroke(1.dp, Color.Gray),
-                        shape = RoundedCornerShape(10.dp)
-                    )
-                    .padding(top = 16.dp),
-                horizontalAlignment = Alignment.Start
-            ){
-                Text(
-                    text = "Apps mas usadas",
-                    fontSize = 18.sp,
-                    modifier = Modifier.padding(start = 10.dp,bottom = 5.dp)
-                )
-                Column(
+            MySegmentdButton(
+                options = statistics,
+                selectedIndex = 0,
+                onOptionSelected = {index -> selectedIndex = index}
+            )
+            if (selectedIndex == 0){
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(ComponentBackground, RoundedCornerShape(10.dp))
-                        .padding(1.dp)
-                ) {
-                    usedApps.forEach { stat ->
-                        UsedApps(appName = stat.appName, usageTime = stat.usageTime)
-                    }
+                        .size(200.dp),
+                    contentAlignment = Alignment.Center
+                ){
+                    DailyPieChart(
+                        data = dataList,
+                        modifier = Modifier.matchParentSize()
+                    )
+                    Text(
+                        text = useHours,
+                        fontSize = 35.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
+                AppStatisticsContent(usedApps = usedApps)
+            } else {
+                WeekStatistics(dailyHours,week, weeklyAverage)
+            }
+        }
+    }
+}
+@Composable
+fun WeekStatistics(
+    values: List<Float>,
+    labels: List<String>,
+    promSemanal: String
+){
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(12.dp)
+    ) {
+        Text(
+            text = "Promedio     \n     Semanal",
+            fontSize = 36.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(16.dp))
+
+        WeeklyBarChart(values, labels)
+
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = promSemanal,
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(Modifier.height(32.dp))
+    }
+}
+
+@Composable
+fun AppStatisticsContent(usedApps: List<UsageStats>){
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(
+                BorderStroke(1.dp, Color.Gray),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .padding(top = 16.dp),
+        horizontalAlignment = Alignment.Start
+    ){
+        Text(
+            text = "Apps mas usadas",
+            fontSize = 18.sp,
+            modifier = Modifier.padding(start = 10.dp,bottom = 5.dp)
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(ComponentBackground, RoundedCornerShape(10.dp))
+                .padding(1.dp)
+        ) {
+            usedApps.forEach { stat ->
+                UsedApps(appName = stat.appName, usageTime = stat.usageTime)
             }
         }
     }
@@ -232,21 +292,5 @@ fun AppConfig(
 @Preview(showBackground = true)
 @Composable
 fun AppPreview(){
-    /*
-    val sampleStats = listOf(
-        UsageStats("TikTok", "1h"),
-        UsageStats("Youtube", "20 min"),
-        UsageStats("Reddit", "6 min")
-    )
-    AppTheme {
-        AppStatistics("1h 26 min", sampleStats)
-    }
-     */
-    val appsPreview = listOf(
-        "Instagram","Facebook","TikTok","Youtube","Reddit","Discord"
-    )
-    val timePreview = listOf(
-        10,15,30
-    )
-    BlockConfig(appsPreview, timePreview,onClickConfirm = {})
+
 }
