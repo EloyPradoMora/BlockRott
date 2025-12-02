@@ -62,6 +62,7 @@ dependencies {
 
     // Dependencias de los test
     testImplementation(libs.junit)
+    testImplementation(libs.play.services.ads.v2480)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
