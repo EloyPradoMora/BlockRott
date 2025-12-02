@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -32,13 +31,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.blockrott.frontend.theme.ComponentBackground
 import androidx.compose.runtime.*
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
-import com.example.blockrott.frontend.theme.SecondaryColor
-import com.example.blockrott.frontend.theme.TextSecondary
-import com.example.blockrott.frontend.theme.TimerTextSelected
-import com.example.blockrott.frontend.theme.TimerTextUnselected
+import com.example.blockrott.frontend.theme.*
+import com.example.blockrott.R.drawable
 
 @Composable
 fun StatisticsButton(
@@ -57,7 +54,11 @@ fun StatisticsButton(
             containerColor = ComponentBackground,
         )
     ) {
-        /* AGREGAR AQUI LA IMAGEN DE ESTADISTICA */
+        Icon(
+            painter = painterResource(id = drawable.statistics),
+            contentDescription = "",
+            tint = Discord
+        )
     }
 }
 
