@@ -12,6 +12,8 @@ lifecycleRuntimeKtx = "2.9.3"
 activityCompose = "1.11.0"
 compose-bom = "2024.06.00"
 mockitoCore = "5.20.0"
+ads = "23.0.0"
+playServicesAds = "24.8.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,7 +36,8 @@ androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-man
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
-
+google-mobile-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "ads" }
+play-services-ads-v2480 = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
