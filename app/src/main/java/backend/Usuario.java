@@ -134,15 +134,4 @@ public class Usuario {
     public ArrayList<EspecificacionApp> getEspecificacionesApp() {
         return this.especificacionesApp;
     }
-    public void extenderTiempoLimite(String packageName, long extensionMillis) {
-        for (EspecificacionApp app : especificacionesApp) {
-            if (app.getNombrePaquete().equals(packageName)) {
-                app.agregarTiempoMaximoUso(extensionMillis);
-                if (app.isBloqueada()) {
-                    app.verificarLimiteTiempo();
-                }
-                break;
-            }
-        }
-    }
 }

@@ -44,7 +44,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.google.mobile.ads)
 
     // Dependencias de Compose y sus auxiliares
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -62,7 +61,6 @@ dependencies {
 
     // Dependencias de los test
     testImplementation(libs.junit)
-    testImplementation(libs.play.services.ads.v2480)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
