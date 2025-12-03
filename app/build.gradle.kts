@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    id("org.sonarqube")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -72,4 +75,13 @@ dependencies {
     testImplementation(libs.mockito.core)
     testImplementation("org.robolectric:robolectric:4.16")
     testImplementation("androidx.test:core:1.7.0")
+}
+
+
+sonar {
+    properties {
+        property("sonar.androidLint.reportPaths", "build/reports/lint-results-debug.xml")
+        property("sonar.sources", "src/main/java")
+        property("sonar.tests", "src/test/java, src/androidTest/java")
+    }
 }
