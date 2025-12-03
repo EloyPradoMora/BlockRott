@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.blockrott.frontend.theme.ComponentBackground
@@ -29,6 +30,7 @@ fun UsedApps(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .testTag("used_apps")
             .padding(vertical = 4.dp)
             .background(ComponentBackground)
             .border(
@@ -100,7 +102,7 @@ fun SwitchTime(
 
 ) {
     val visualTime = "$timeConfig min"
-
+    var checked by remember { mutableStateOf(initialChecked) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -119,8 +121,9 @@ fun SwitchTime(
         )
         Spacer(Modifier.weight(1f))
         SwitchBlock(
-            checked = initialChecked,
+            checked = checked,
             onCheckedChange = { newValue ->
+                checked = newValue
                 if (newValue) {
                     onMinSelected(timeConfig)
                 } else {
