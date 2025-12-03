@@ -105,6 +105,7 @@ fun SwitchTime(
                 BorderStroke(1.dp, Color.Gray),
                 shape = RoundedCornerShape(20.dp)
             )
+            .testTag("row_$timeConfig")
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
