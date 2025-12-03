@@ -23,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -193,7 +194,7 @@ fun BlockConfig(
     val options = listOf("Apps", "Min")
     /* VARIABLE DONDE SE GUARDAN LA LISTA DE DE APLICACIÓNES SELECCIÓNADAS */
     val selectedApps = remember {
-        mutableListOf<String>()
+        SnapshotStateList<String>()
     }
     /* ESTA VARIABLE ESTABLECE CUANTOS MINUTOS DURARA EL BLOQUEO */
     var selectedMin by remember { mutableIntStateOf(0) }
@@ -284,14 +285,27 @@ fun TimeConfig(
 @Composable
 fun AppConfig(
     appsList: List<String>,
-    selectedApps: MutableList<String>
+    selectedApps: SnapshotStateList<String>
 ){
-    appsList.forEach { app ->
-        SwitchApp(
-            appName = app,
-            initialChecked = selectedApps.contains(app),
-            selectedApps = selectedApps
-        )
+    val onToggleApp: (String) -> Unit = remember(selectedApps) {
+        { app ->
+            if (selectedApps.contains(app)) {
+                selectedApps.remove(app)
+            } else {
+                selectedApps.add(app)
+            }
+        }
+    }
+    Column {
+        appsList.forEach { app ->
+            key(app) {
+                SwitchApp(
+                    appName = app,
+                    checked = selectedApps.contains(app),
+                    onToggle = onToggleApp
+                )
+            }
+        }
     }
 }
 

@@ -1,6 +1,5 @@
 package com.example.blockrott.appTest
 
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
@@ -11,7 +10,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.runner.AndroidJUnit4
 import com.example.blockrott.frontend.components.SwitchApp
-import junit.framework.TestCase
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,41 +25,54 @@ class SwitchAppTest {
     // --- 1. Lógica de Adición (Inicialmente Desactivado) ---
 
     @Test
-    fun switchAppTest_InitialStateOff(){
-        val initialState = false
+    fun switchAppTest_InitialStateOff() {
+        val appName = "Discord"
         val selectedApps = mutableStateListOf<String>()
+
         composeTestRule.setContent {
             SwitchApp(
-                appName, initialState, selectedApps
+                appName = appName,
+                checked = selectedApps.contains(appName),
+                onToggle = { app ->
+                    if (selectedApps.contains(app)) selectedApps.remove(app)
+                    else selectedApps.add(app)
+                }
             )
         }
         composeTestRule.onNodeWithText(appName).assertIsDisplayed()
-        composeTestRule.onNodeWithTag("switch_tag").assertIsOff()
-        TestCase.assertFalse("NO debe contener la app al inicio", selectedApps.contains(appName))
-        composeTestRule.onNodeWithTag("switch_tag").performClick()
-        composeTestRule.onNodeWithTag("switch_tag").assertIsOn()
-        TestCase.assertTrue("Debe contener la app", selectedApps.contains(appName))
+        composeTestRule.onNodeWithTag("tag_$appName").assertIsOff()
+
+        assertFalse(selectedApps.contains(appName))
+        composeTestRule.onNodeWithTag("tag_$appName").performClick()
+
+        composeTestRule.onNodeWithTag("tag_$appName").assertIsOn()
+        assertTrue(selectedApps.contains(appName))
     }
+
 
     // --- 2. Lógica de Eliminación (Inicialmente Activado) ---
 
     @Test
     fun switchAppTest_InitialStateOn() {
+        val appName = "Discord"
         val selectedApps = mutableStateListOf(appName)
-        val initialChecked = true
 
         composeTestRule.setContent {
             SwitchApp(
                 appName = appName,
-                initialChecked = initialChecked,
-                selectedApps = selectedApps
+                checked = selectedApps.contains(appName),
+                onToggle = { app ->
+                    if (selectedApps.contains(app)) selectedApps.remove(app)
+                    else selectedApps.add(app)
+                }
             )
         }
-        composeTestRule.onNodeWithTag("switch_tag").assertIsOn()
-        TestCase.assertTrue("Debe contener la app al inicio",selectedApps.contains(appName))
-        composeTestRule.onNodeWithTag("switch_tag").performClick()
-        composeTestRule.onNodeWithTag("switch_tag").assertIsOff()
-        TestCase.assertFalse("NO debe contener appName después del click",selectedApps.contains(appName)
-        )
+        composeTestRule.onNodeWithTag("tag_$appName").assertIsOn()
+        assertTrue(selectedApps.contains(appName))
+
+        composeTestRule.onNodeWithTag("tag_$appName").performClick()
+        composeTestRule.onNodeWithTag("tag_$appName").assertIsOff()
+        assertFalse(selectedApps.contains(appName))
     }
+
 }
