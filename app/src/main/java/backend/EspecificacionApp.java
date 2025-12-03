@@ -9,8 +9,7 @@ import android.util.Log;
 import android.view.WindowManager;
 import java.util.Calendar;
 import java.util.List;
-import android.content.Context;
-import android.util.Log;
+
 public class EspecificacionApp {
     private String nombreApp;
     private String nombrePaquete;
@@ -91,4 +90,13 @@ public class EspecificacionApp {
     public String getNombrePaquete() { return this.nombrePaquete; }
 
     public boolean isBloqueada() { return this.bloqueada; }
+
+    public void agregarTiempoMaximoUso(long extensionMillis) {
+        this.tiempoMaximoUso += extensionMillis;
+        Log.d("BlockRott", nombreApp + " - Límite extendido por " + extensionMillis + "ms. Nuevo Límite: " + tiempoMaximoUso);
+    }
+
+    public long getTiempoMaximoUso() {
+        return this.tiempoMaximoUso;
+    }
 }
