@@ -24,6 +24,7 @@ public class BlockerActivity extends AppCompatActivity {
     private static final String TAG = "BlockerActivityAd";
     private RewardedAd rewardedAd;
     private String adUnitId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,9 +104,13 @@ public class BlockerActivity extends AppCompatActivity {
         }
         rewardedAd.show(this, rewardItem -> {
             Log.d(TAG, "El usuario gana: " + rewardItem.getAmount());
-            Usuario.getInstance(getApplicationContext()).extenderTiempoLimite(packageName, EXTENSION_TIME_MS);
-            finish();
+            handleAdReward(packageName);
         });
         loadRewardedAd(adUnitId);
+    }
+
+    public void handleAdReward(String packageName) {
+        Usuario.getInstance(getApplicationContext()).extenderTiempoLimite(packageName, EXTENSION_TIME_MS);
+        finish();
     }
 }
