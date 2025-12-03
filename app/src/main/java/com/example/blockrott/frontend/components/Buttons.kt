@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.blockrott.frontend.theme.ComponentBackground
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.sp
 import com.example.blockrott.frontend.theme.SecondaryColor
 import com.example.blockrott.frontend.theme.TextSecondary
@@ -118,7 +119,8 @@ fun SwitchBlock(
 ) {
     Switch(
         checked = checked,
-        onCheckedChange = onCheckedChange
+        onCheckedChange = onCheckedChange,
+        modifier = Modifier.testTag("switch_tag")
     )
 }
 
