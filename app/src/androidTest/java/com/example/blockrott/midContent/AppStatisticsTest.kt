@@ -1,4 +1,4 @@
-package com.example.blockrott
+package com.example.blockrott.midContent
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
