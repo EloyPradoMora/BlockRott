@@ -13,13 +13,19 @@ Tener instalado Android Studio, para ejecutar la demo del programa, ya que facil
 3.  Ejecutar "Sync Now" Gradle dentro del proyecto.
 
 # Backend
-1. Ejecutar el main de springboot usando el boton run de la IDE 
+1. Ejecutar el main de springboot usando el boton run de la IDE
+
+# Sonarqube
+1. Buscar la carpeta de el proyecto desde gitbash
+2. Ejecutar el comando entregado por sonar para realizar un scanner
+3. Revisar el proyecto en sonarqube local
 
 # EMULACION
 Ejecutar el emulador dentro de  Android Studio o por otro lado ir a el archivo "MainActivity.kt"
 com.example.blockrott.frontend.ui
 1. clic derecho
 2. seleccionar Run 'MainActivity'
+   
 
 # GENERACION DE APK
 1. Main menu (3 barras, esquina superior izquiera)
