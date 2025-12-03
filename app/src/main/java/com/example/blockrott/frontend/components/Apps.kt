@@ -3,6 +3,7 @@ package com.example.blockrott.frontend.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,12 +11,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.blockrott.frontend.theme.ComponentBackground
@@ -29,6 +28,7 @@ fun UsedApps(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .testTag("used_apps")
             .padding(vertical = 4.dp)
             .background(ComponentBackground)
             .border(
@@ -54,11 +54,9 @@ fun UsedApps(
 @Composable
 fun SwitchApp(
     appName: String,
-    initialChecked: Boolean,
-    selectedApps: MutableList<String>
+    checked: Boolean,
+    onToggle: (String) -> Unit
 ) {
-    var isChecked by remember { mutableStateOf(initialChecked) }
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -68,7 +66,11 @@ fun SwitchApp(
                 BorderStroke(1.dp, Color.Gray),
                 shape = RoundedCornerShape(20.dp)
             )
-            .padding(10.dp),
+            .padding(10.dp)
+            .testTag("row_$appName")
+            .clickable {
+                onToggle(appName)
+            },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -77,17 +79,11 @@ fun SwitchApp(
         )
         Spacer(Modifier.weight(1f))
         SwitchBlock(
-            checked = isChecked,
-            onCheckedChange = { newValue ->
-                isChecked = newValue
-                if (newValue){
-                    if (!selectedApps.contains(appName)){
-                        selectedApps.add(appName)
-                    }
-                } else {
-                    selectedApps.remove(appName)
-                }
-            }
+            checked = checked,
+            onCheckedChange = { _ ->
+                onToggle(appName)
+            },
+            modifier = Modifier.testTag("tag_$appName")
         )
     }
 }
@@ -100,7 +96,6 @@ fun SwitchTime(
 
 ) {
     val visualTime = "$timeConfig min"
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -110,6 +105,7 @@ fun SwitchTime(
                 BorderStroke(1.dp, Color.Gray),
                 shape = RoundedCornerShape(20.dp)
             )
+            .testTag("row_$timeConfig")
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -120,6 +116,7 @@ fun SwitchTime(
         Spacer(Modifier.weight(1f))
         SwitchBlock(
             checked = initialChecked,
+            modifier = Modifier.testTag("tag_$timeConfig"),
             onCheckedChange = { newValue ->
                 if (newValue) {
                     onMinSelected(timeConfig)

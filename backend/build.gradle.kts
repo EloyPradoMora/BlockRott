@@ -2,6 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.5.6"
 	id("io.spring.dependency-management") version "1.1.7"
+    id("org.sonarqube")
 }
 
 group = "com.example.blockrott"
@@ -29,4 +30,15 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+sonar {
+    properties {
+        // file() resuelve la ruta relativa a la carpeta 'backend', no al root.
+        property("sonar.java.binaries", file("build/classes/java/main"))
+
+        // Opcional: Para evitar errores con Lombok o librerias faltantes
+        property("sonar.libraries", file("build/libs"))
+        property("sonar.libraries", "build/libs")
+    }
 }

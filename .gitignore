@@ -18,3 +18,5 @@ local.properties
 .idea/inspectionProfiles/Project_Default.xml
 backend/src/main/resources/application.properties
 application.properties
+# Android Studio Test Results
+/.idea/androidTestResultsUserPreferences.xml

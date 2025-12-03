@@ -2,4 +2,14 @@
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
+    id("org.sonarqube") version "6.3.1.5724"
+    id("com.google.dagger.hilt.android") version "2.51" apply false
+}
+
+sonar {
+    properties {
+        property("sonar.modules", "app,backend")
+        property("sonar.sourceEncoding", "UTF-8")
+
+    }
 }

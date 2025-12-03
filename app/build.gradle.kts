@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    id("org.sonarqube")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -44,6 +47,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
+    implementation(libs.google.mobile.ads)
 
     // Dependencias de Compose y sus auxiliares
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -61,6 +65,7 @@ dependencies {
 
     // Dependencias de los test
     testImplementation(libs.junit)
+    testImplementation(libs.play.services.ads.v2480)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -70,4 +75,13 @@ dependencies {
     testImplementation(libs.mockito.core)
     testImplementation("org.robolectric:robolectric:4.16")
     testImplementation("androidx.test:core:1.7.0")
+}
+
+
+sonar {
+    properties {
+        property("sonar.androidLint.reportPaths", "build/reports/lint-results-debug.xml")
+        property("sonar.sources", "src/main/java")
+        property("sonar.tests", "src/test/java, src/androidTest/java")
+    }
 }
