@@ -102,7 +102,6 @@ fun SwitchTime(
 
 ) {
     val visualTime = "$timeConfig min"
-    var checked by remember { mutableStateOf(initialChecked) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -121,9 +120,9 @@ fun SwitchTime(
         )
         Spacer(Modifier.weight(1f))
         SwitchBlock(
-            checked = checked,
+            checked = initialChecked,
+            modifier = Modifier.testTag("tag_$timeConfig"),
             onCheckedChange = { newValue ->
-                checked = newValue
                 if (newValue) {
                     onMinSelected(timeConfig)
                 } else {

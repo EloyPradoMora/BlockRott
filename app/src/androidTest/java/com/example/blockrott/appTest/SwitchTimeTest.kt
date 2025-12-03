@@ -1,10 +1,12 @@
 package com.example.blockrott.appTest
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.runtime.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.blockrott.frontend.components.SwitchTime
 import junit.framework.TestCase.assertEquals
@@ -23,19 +25,21 @@ class SwitchTimeTest {
     @Test
     fun switchTime_clickOn() {
         val timeConfig = 45
-        var capturedMin = 0
+        var capturedMin by mutableStateOf(0) // Variable observable del test
+        val tag = "tag_$timeConfig"
 
         composeTestRule.setContent {
+            val initialChecked = (timeConfig == capturedMin)
             SwitchTime(
                 timeConfig = timeConfig,
-                initialChecked = false,
+                initialChecked = initialChecked,
                 onMinSelected = { newMin -> capturedMin = newMin }
             )
         }
-        composeTestRule.onNodeWithTag("switch_tag").assertIsOff()
+        composeTestRule.onNodeWithTag(tag).assertIsOff()
         assertEquals("El valor inicial debe ser 0.", 0, capturedMin)
-        composeTestRule.onNodeWithTag("switch_tag").performClick()
-        composeTestRule.onNodeWithTag("switch_tag").assertIsOn()
+        composeTestRule.onNodeWithTag(tag).performClick()
+        composeTestRule.onNodeWithTag(tag).assertIsOn()
         assertEquals("El valor DEBE ser igual a timeConfig.", timeConfig, capturedMin)
     }
 
@@ -44,18 +48,20 @@ class SwitchTimeTest {
     @Test
     fun switchTime_clickOff(){
         val timeConfig = 90
-        var capturedMin = 90
+        var capturedMin by mutableIntStateOf(timeConfig)
+        val tag = "tag_$timeConfig"
         composeTestRule.setContent {
+            val initialChecked = (timeConfig == capturedMin)
             SwitchTime(
                 timeConfig = timeConfig,
-                initialChecked = true,
+                initialChecked = initialChecked,
                 onMinSelected = { newMin -> capturedMin = newMin }
             )
         }
-        composeTestRule.onNodeWithTag("switch_tag").assertIsOn()
+        composeTestRule.onNodeWithTag(tag).assertIsOn()
         assertEquals("El valor inicial debe ser 90.", timeConfig, capturedMin)
-        composeTestRule.onNodeWithTag("switch_tag").performClick()
-        composeTestRule.onNodeWithTag("switch_tag").assertIsOff()
+        composeTestRule.onNodeWithTag(tag).performClick()
+        composeTestRule.onNodeWithTag(tag).assertIsOff()
         assertEquals("El valor DEBE ser 0.", 0, capturedMin)
     }
 }

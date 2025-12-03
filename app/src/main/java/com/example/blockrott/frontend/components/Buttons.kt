@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.blockrott.frontend.theme.ComponentBackground
 import androidx.compose.runtime.*
+import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.sp
 import com.example.blockrott.frontend.theme.SecondaryColor
@@ -115,12 +116,13 @@ fun SettingsButton(
 @Composable
 fun SwitchBlock(
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
-        modifier = Modifier.testTag("switch_tag")
+        modifier = modifier
     )
 }
 
