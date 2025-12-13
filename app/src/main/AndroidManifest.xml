@@ -43,7 +43,8 @@
         <activity
             android:name="backend.BlockerActivity"
             android:theme="@style/Theme.AppCompat.Dialog.Alert"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.example.blockrott.blocker"
             android:excludeFromRecents="true"
             android:exported="false" />
         <meta-data

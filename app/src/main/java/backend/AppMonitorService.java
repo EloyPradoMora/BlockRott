@@ -116,10 +116,8 @@ public class AppMonitorService extends Service {
                 }
                 if (blockReason != null) {
                     appIsBlocked = true;
-                    if (!foregroundApp.equals(lastBlockedPackage)) {
-                        Log.d(TAG, "Bloqueando app: " + foregroundApp + " - Reason: " + blockReason);
-                        showBlockerScreen(foregroundApp, blockReason);
-                    }
+                    Log.d(TAG, "Bloqueando app: " + foregroundApp + " - Reason: " + blockReason);
+                    showBlockerScreen(foregroundApp, blockReason);
                 }
                 break;
             }
@@ -135,7 +133,7 @@ public class AppMonitorService extends Service {
     }
 
     private void showBlockerScreen(String packageName, String reason) {
-        if (packageName.equals(lastBlockedPackage)) {
+        if (BlockerActivity.isRunning) {
             return;
         }
         lastBlockedPackage = packageName;

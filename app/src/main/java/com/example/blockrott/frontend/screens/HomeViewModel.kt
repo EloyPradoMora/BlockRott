@@ -45,7 +45,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun inicializarApps(context: Context) {
         if (usuario.especificacionesApp.isEmpty()) {
-            usuario.agregarEspecificacionNueva("YouTube", "com.google.android.youtube", 180000L)
+            usuario.agregarEspecificacionNueva("YouTube", "com.google.android.youtube", 10*1000L)
             usuario.agregarEspecificacionNueva("Instagram", "com.instagram.android", 180000L)
             usuario.agregarEspecificacionNueva("TikTok", "com.zhiliaoapp.musically", 180000L)
         }

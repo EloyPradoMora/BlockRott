@@ -20,11 +20,28 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 public class BlockerActivity extends AppCompatActivity {
     private static final String REASON_TIME_LIMIT = "TIME_LIMIT";
     private static final String REASON_GLOBAL_LOCK = "GLOBAL_LOCK";
-    private static final long EXTENSION_TIME_MS = 10 * 60 * 1000L; //10 minutos, para cambiar el tiempo cambiar el primer numero solamente
+    private static final long EXTENSION_TIME_MS = 10 * 1000L; // 10 minutos, para cambiar el tiempo cambiar el primer numero solamente
 
     private static final String TAG = "BlockerActivityAd";
     private RewardedAd rewardedAd;
     private String adUnitId;
+
+    public static boolean isRunning = false;
+    public static boolean isAdShowing = false;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isRunning = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (!isAdShowing) {
+            isRunning = false;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,12 +122,14 @@ public class BlockerActivity extends AppCompatActivity {
             Log.e(TAG, "El auncio de recompensa aun no esta listo.");
             return;
         }
+        isAdShowing = true;
 
         rewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
             @Override
             public void onAdDismissedFullScreenContent() {
                 Log.d(TAG, "Ad dismissed fullscreen content.");
                 rewardedAd = null;
+                isAdShowing = false;
                 if (userEarnedReward) {
                     handleAdReward(packageName);
                 }
@@ -121,6 +140,7 @@ public class BlockerActivity extends AppCompatActivity {
             public void onAdFailedToShowFullScreenContent(com.google.android.gms.ads.AdError adError) {
                 Log.e(TAG, "Ad failed to show fullscreen content.");
                 rewardedAd = null;
+                isAdShowing = false;
             }
 
             @Override
