@@ -92,7 +92,7 @@ public class EspecificacionApp {
     public boolean isBloqueada() { return this.bloqueada; }
 
     public void agregarTiempoMaximoUso(long extensionMillis) {
-        this.tiempoMaximoUso += extensionMillis;
+        this.tiempoMaximoUso = Math.max(this.tiempoMaximoUso, this.tiempoUso) + extensionMillis;
         Log.d("BlockRott", nombreApp + " - Límite extendido por " + extensionMillis + "ms. Nuevo Límite: " + tiempoMaximoUso);
     }
 

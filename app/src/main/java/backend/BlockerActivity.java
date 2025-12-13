@@ -12,6 +12,7 @@ import androidx.activity.OnBackPressedCallback;
 import com.example.blockrott.R;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
@@ -97,20 +98,55 @@ public class BlockerActivity extends AppCompatActivity {
         });
     }
 
+    private boolean userEarnedReward = false;
+
     private void showRewardedAd(String packageName) {
         if (rewardedAd == null) {
             Log.e(TAG, "El auncio de recompensa aun no esta listo.");
             return;
         }
+
+        rewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+            @Override
+            public void onAdDismissedFullScreenContent() {
+                Log.d(TAG, "Ad dismissed fullscreen content.");
+                rewardedAd = null;
+                if (userEarnedReward) {
+                    handleAdReward(packageName);
+                }
+                loadRewardedAd(adUnitId);
+            }
+
+            @Override
+            public void onAdFailedToShowFullScreenContent(com.google.android.gms.ads.AdError adError) {
+                Log.e(TAG, "Ad failed to show fullscreen content.");
+                rewardedAd = null;
+            }
+
+            @Override
+            public void onAdShowedFullScreenContent() {
+                Log.d(TAG, "Ad showed fullscreen content.");
+            }
+        });
+        userEarnedReward = false;
         rewardedAd.show(this, rewardItem -> {
             Log.d(TAG, "El usuario gana: " + rewardItem.getAmount());
-            handleAdReward(packageName);
+            userEarnedReward = true;
         });
-        loadRewardedAd(adUnitId);
     }
 
     public void handleAdReward(String packageName) {
         Usuario.getInstance(getApplicationContext()).extenderTiempoLimite(packageName, EXTENSION_TIME_MS);
+
+        if (packageName != null) {
+            android.content.Intent launchIntent = getPackageManager().getLaunchIntentForPackage(packageName);
+            if (launchIntent != null) {
+                launchIntent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(launchIntent);
+            } else {
+                Log.e(TAG, "No se pudo encontrar  " + packageName);
+            }
+        }
         finish();
     }
 }
