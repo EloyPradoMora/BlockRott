@@ -65,20 +65,44 @@ public class AppMonitorService extends Service {
         return START_STICKY; // El servicio se reiniciará si el sistema lo mata
     }
 
+    private long lastCheckTime = 0;
+
     private void runMonitoringLoop() {
         if (usuario == null) {
             Log.e(TAG, "Usuario es nulo, deteniendo el bucle.");
             return;
         }
-        usuario.monitoreoApps();
+
+        long currentTime = System.currentTimeMillis();
+        long delta = 0;
+        if (lastCheckTime > 0) {
+            delta = currentTime - lastCheckTime;
+        }
+        lastCheckTime = currentTime;
+
         String foregroundApp = getForegroundAppPackageName();
+
+        // Primero actualizamos el tiempo manual de la app en primer plano si
+        // corresponde
+        if (foregroundApp != null && delta > 0) {
+            for (EspecificacionApp app : usuario.getEspecificacionesApp()) {
+                if (app.getNombrePaquete().equals(foregroundApp)) {
+                    app.sumarTiempoEnPrimerPlano(delta);
+                    break;
+                }
+            }
+        }
+
+        usuario.monitoreoApps();
+
         if (foregroundApp != null && foregroundApp.equals(getPackageName())) {
             monitoringHandler.postDelayed(monitoringRunnable, MONITOR_INTERVAL_MS);
             return; // estamos en blockrott no hacemos nada, pero hay que seguir monitoriando
         }
         if (foregroundApp == null || foregroundApp.equals(getPackageName())) {
             monitoringHandler.postDelayed(monitoringRunnable, MONITOR_INTERVAL_MS);
-            return; //terminamos altiro si es que la app actual del usuario no esta en la lista de apps a bloquear
+            return; // terminamos altiro si es que la app actual del usuario no esta en la lista de
+                    // apps a bloquear
         }
         boolean appIsBlocked = false;
         boolean isGlobalBlock = usuario.isBloqueoGlobal();
@@ -100,7 +124,8 @@ public class AppMonitorService extends Service {
                 break;
             }
         }
-        if (!appIsBlocked) { //esto esta para que si el usuario se sale de la app bloqueada y trata de volver a entrar el bloqeo salte de nuevo
+        if (!appIsBlocked) { // esto esta para que si el usuario se sale de la app bloqueada y trata de
+                             // volver a entrar el bloqeo salte de nuevo
             if (!lastBlockedPackage.isEmpty()) {
                 Log.d(TAG, "Clearing last blocked app: " + lastBlockedPackage);
             }
@@ -123,7 +148,8 @@ public class AppMonitorService extends Service {
 
     private String getForegroundAppPackageName() {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
-        if (usm == null) return null;
+        if (usm == null)
+            return null;
         long time = System.currentTimeMillis();
         List<UsageStats> stats = usm.queryUsageStats(
                 UsageStatsManager.INTERVAL_DAILY, time - (60 * 1000), time);
@@ -158,8 +184,7 @@ public class AppMonitorService extends Service {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
                     "Canal de Monitoreo de App",
-                    NotificationManager.IMPORTANCE_LOW
-            );
+                    NotificationManager.IMPORTANCE_LOW);
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) {
                 manager.createNotificationChannel(serviceChannel);
