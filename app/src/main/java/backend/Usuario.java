@@ -141,7 +141,7 @@ public class Usuario {
                 if (app.isBloqueada()) {
                     app.verificarLimiteTiempo();
                 }
-                break;
+                return;
             }
         }
     }
