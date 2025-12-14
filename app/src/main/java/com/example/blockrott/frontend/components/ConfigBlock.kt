@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
@@ -38,10 +39,18 @@ fun BlockConfig(
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val options = listOf("Apps", "Min")
-
+    var showWarningDialog by remember { mutableStateOf(false) }
     val selectedApps = remember { mutableStateListOf<String>() }
     var selectedMin by remember { mutableIntStateOf(0) }
-
+    if (showWarningDialog) {
+        AlertDialog(
+            type = DialogType.WARNING,
+            onDismiss = { showWarningDialog = false },
+            onConfirmation = { showWarningDialog = false },
+            dialogTitle = "ADVERTENCIA",
+            dialogExplanation = "No puede continuar si no a selecciónado ninguna aplicación"
+        )
+    }
     Column(
         modifier = modifier
             .background(ComponentBackground)
@@ -90,7 +99,11 @@ fun BlockConfig(
             if (selectedIndex == 0) {
                 ConfirmationButton(
                     text = "Confirmar",
-                    onClickConfirm = { onClickConfirm() }
+                    onClickConfirm = {
+                        if (selectedApps.isEmpty()){
+                            showWarningDialog = true
+                        } else{ onClickConfirm() }
+                    }
                 )
             } else {
                 ConfirmationButton(

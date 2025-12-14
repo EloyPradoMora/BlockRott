@@ -75,7 +75,7 @@ fun AlertDialog(
         },
         confirmButton = {
             TextButton(onClick = onConfirmation) {
-                Text("Entendido", fontWeight = FontWeight.SemiBold)
+                Text("Entendido", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.secondary)
             }
         },
         dismissButton = {
@@ -88,7 +88,7 @@ fun AlertDialog(
 
 @Preview(showBackground = true)
 @Composable
-fun previewDialog(){
+fun PreviewDialog(){
     val tiposTitulos = listOf("Operacion Fallida","Operación Exitosa","Advertencia","Atención")
     MaterialTheme {
         AlertDialog(
