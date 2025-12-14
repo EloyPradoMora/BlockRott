@@ -3,18 +3,20 @@ package com.example.blockrott
 import android.content.Intent
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.compose.ui.test.junit4.createEmptyComposeRule
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import backend.BlockerActivity
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class BlockerActivityIntegrationTest {
+
+    @get:Rule
+    val composeTestRule = createEmptyComposeRule()
 
     @Test
     fun testGlobalLockUI() {
@@ -24,9 +26,9 @@ class BlockerActivityIntegrationTest {
         }
 
         ActivityScenario.launch<BlockerActivity>(intent).use {
-            onView(withId(R.id.blocked_app_name)).check(matches(withText("com.test.app")))
-            onView(withId(R.id.blocked_message_text)).check(matches(withText("Aplicación bloqueada por el control de tiempo global.")))
-            onView(withId(R.id.close_blocker_button)).check(matches(withText("Entendido")))
+            composeTestRule.onNodeWithText("Aplicación bloqueada por el control global.").assertIsDisplayed()
+            composeTestRule.onNodeWithText("com.test.app").assertIsDisplayed()
+            composeTestRule.onNodeWithText("Entendido").assertIsDisplayed()
         }
     }
 
@@ -38,9 +40,9 @@ class BlockerActivityIntegrationTest {
         }
 
         ActivityScenario.launch<BlockerActivity>(intent).use {
-            onView(withId(R.id.blocked_app_name)).check(matches(withText("com.test.app")))
-            onView(withId(R.id.blocked_message_text)).check(matches(withText("¡Límite de tiempo alcanzado! ¿Quieres una extensión?")))
-            onView(withId(R.id.close_blocker_button)).check(matches(withText("Ver anuncio para usar por 10 minutos mas")))
+            composeTestRule.onNodeWithText("com.test.app").assertIsDisplayed()
+            composeTestRule.onNodeWithText("¡Límite de tiempo alcanzado! ¿Quieres una extensión?").assertIsDisplayed()
+            composeTestRule.onNodeWithText("Ver anuncio por 10 minutos más:").assertIsDisplayed()
         }
     }
 
