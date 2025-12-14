@@ -106,7 +106,7 @@ fun HomeScreen(
                     .fillMaxWidth()
                     .fillMaxHeight(0.85f),
                 // Entregar estos valores validados
-                appsList = listOf("YouTube", "Instagram", "TikTok"),
+                appsList = uiState.appsList,
                 timeList = listOf(5, 10, 15, 30, 45, 60),
                 onClickConfirm = {
                     // hacer que reciba la lista de apps seleccionadas y el tiempo de bloqueo

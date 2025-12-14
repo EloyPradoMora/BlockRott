@@ -8,6 +8,9 @@ import android.content.DialogInterface;
 import android.app.AppOpsManager;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.provider.Settings;
 
 import java.util.ArrayList;
@@ -22,7 +25,6 @@ public class Usuario {
     private ArrayList<EspecificacionApp> especificacionesApp;
     private ConfiguracionVisual configuracionVisual;
     private ArrayList<Conexion> conexiones;
-
     private boolean bloqueoGlobal;
     public boolean agregarEspecificacionNueva(String nombreApp, String nombrePaquete, long tiempoMaximoDeUso){
         this.especificacionesApp.add(new EspecificacionApp(nombreApp, nombrePaquete,tiempoMaximoDeUso, this.applicationContext));
@@ -33,6 +35,52 @@ public class Usuario {
         this.applicationContext = context.getApplicationContext(); // Importante
         especificacionesApp = new ArrayList<>();
         this.bloqueoGlobal = false;
+        cargarAppsInstaladas(context);
+    }
+
+    private void cargarAppsInstaladas(Context context) {
+        PackageManager pm = context.getPackageManager();
+        List<PackageInfo> installedPackages = pm.getInstalledPackages(0);
+        for (PackageInfo packageInfo : installedPackages) {
+            if (isAppExcluded(packageInfo.packageName)) {
+                continue;
+            }
+            if ("com.google.android.youtube".equals(packageInfo.packageName)) {
+                agregarSiNoExiste(packageInfo, pm, 60 * 1000L);
+                continue;
+            }
+            if (packageInfo.applicationInfo != null) {
+                int category = packageInfo.applicationInfo.category;
+                if (category == ApplicationInfo.CATEGORY_SOCIAL || category == ApplicationInfo.CATEGORY_VIDEO) {
+                    agregarSiNoExiste(packageInfo, pm, 3600000L);
+                }
+            }
+        }
+    }
+
+    private boolean isAppExcluded(String packageName) {
+        return packageName.startsWith("com.android.chrome") ||
+                packageName.startsWith("com.google.android.gm") ||
+                packageName.startsWith("com.google.android.apps.messaging") ||
+                packageName.startsWith("com.android.messaging") ||
+                packageName.startsWith("com.android.contacts") ||
+                packageName.startsWith("com.google.android.contacts") ||
+                packageName.startsWith("com.google.android.calendar") ||
+                packageName.startsWith("com.android.calendar") ||
+                packageName.startsWith("com.google.android.apps.meetings") ||
+                packageName.startsWith("com.brave.browser") ||
+                packageName.startsWith("com.google.android.videos");
+    }
+
+    private void agregarSiNoExiste(PackageInfo packageInfo, PackageManager pm, long tiempoMaximo) {
+        String packageName = packageInfo.packageName;
+        for (EspecificacionApp app : especificacionesApp) {
+            if (app.getNombrePaquete().equals(packageName)) {
+                return;
+            }
+        }
+        String appName = packageInfo.applicationInfo.loadLabel(pm).toString();
+        agregarEspecificacionNueva(appName, packageName, tiempoMaximo);
     }
 
     public String revisarTiempos(){
@@ -58,14 +106,11 @@ public class Usuario {
             if (appOpsManager == null) {
                 return false;
             }
-
             int mode = appOpsManager.checkOpNoThrow(
                     AppOpsManager.OPSTR_GET_USAGE_STATS,
                     android.os.Process.myUid(),
-                    context.getPackageName()
-            );
+                    context.getPackageName());
             return mode == AppOpsManager.MODE_ALLOWED;
-
         } catch (Exception e) {
             e.printStackTrace();
             return false;

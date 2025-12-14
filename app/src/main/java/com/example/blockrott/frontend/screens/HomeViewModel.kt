@@ -28,7 +28,8 @@ data class HomeUiState(
     val listaEstadisticas: List<UsageStats> = emptyList(),
     val tiempoTotal: String = "0m",
     val permisosConcedidos: Boolean = false,
-    val showBlockConfig: Boolean = false
+    val showBlockConfig: Boolean = false,
+    val appsList: List<String> = emptyList()
 )
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -45,11 +46,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun inicializarApps(context: Context) {
-        if (usuario.especificacionesApp.isEmpty()) {
-            usuario.agregarEspecificacionNueva("YouTube", "com.google.android.youtube", 10*1000L)
-            usuario.agregarEspecificacionNueva("Instagram", "com.instagram.android", 180000L)
-            usuario.agregarEspecificacionNueva("TikTok", "com.zhiliaoapp.musically", 180000L)
-        }
+       // Las apps se cargan en el constructor de usuario
     }
     fun actualizarEstadisticas(context: Context) {
         inicializarApps(context)
@@ -80,7 +77,10 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
     }
-    fun mostrarBlockConfig() { _uiState.update { it.copy(showBlockConfig = true) } }
+    fun mostrarBlockConfig() { 
+        val currentApps = usuario.especificacionesApp.map { it.nombreApp }
+        _uiState.update { it.copy(showBlockConfig = true, appsList = currentApps) } 
+    }
     fun ocultarBlockConfig() { _uiState.update { it.copy(showBlockConfig = false) } }
 
     fun bloquearApps(context: Context) {
