@@ -27,7 +27,8 @@ data class HomeUiState(
     val showStatistics: Boolean = false,
     val listaEstadisticas: List<UsageStats> = emptyList(),
     val tiempoTotal: String = "0m",
-    val permisosConcedidos: Boolean = false
+    val permisosConcedidos: Boolean = false,
+    val showBlockConfig: Boolean = false
 )
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -79,9 +80,12 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
     }
+    fun mostrarBlockConfig() { _uiState.update { it.copy(showBlockConfig = true) } }
+    fun ocultarBlockConfig() { _uiState.update { it.copy(showBlockConfig = false) } }
 
     fun bloquearApps(context: Context) {
         usuario.bloquearApps(context)
+        ocultarBlockConfig()
     }
 
     fun ocultarEstadisticas() {
