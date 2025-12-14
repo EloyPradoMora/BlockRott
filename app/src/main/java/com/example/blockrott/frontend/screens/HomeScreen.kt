@@ -1,6 +1,5 @@
 package com.example.blockrott.frontend.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,7 +28,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.blockrott.frontend.components.BlockButton
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.graphics.Color
 import com.example.blockrott.frontend.components.BlockConfig
 import com.example.blockrott.frontend.components.BottomSheet
 
@@ -38,6 +37,9 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
+    LaunchedEffect(Unit) {
+        viewModel.verificarPermisos(context)
+    }
 
     Scaffold(
         bottomBar = {
