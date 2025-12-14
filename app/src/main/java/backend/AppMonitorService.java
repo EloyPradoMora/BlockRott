@@ -133,9 +133,6 @@ public class AppMonitorService extends Service {
     }
 
     private void showBlockerScreen(String packageName, String reason) {
-        if (BlockerActivity.isRunning) {
-            return;
-        }
         lastBlockedPackage = packageName;
         Intent intent = new Intent(this, BlockerActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -149,19 +146,17 @@ public class AppMonitorService extends Service {
         if (usm == null)
             return null;
         long time = System.currentTimeMillis();
-        List<UsageStats> stats = usm.queryUsageStats(
-                UsageStatsManager.INTERVAL_DAILY, time - (60 * 1000), time);
+        android.app.usage.UsageEvents usageEvents = usm.queryEvents(time - (60 * 1000), time);
+        android.app.usage.UsageEvents.Event event = new android.app.usage.UsageEvents.Event();
+        String currentPackage = null;
 
-        if (stats != null && !stats.isEmpty()) {
-            SortedMap<Long, UsageStats> sortedStats = new TreeMap<>();
-            for (UsageStats usageStats : stats) {
-                sortedStats.put(usageStats.getLastTimeUsed(), usageStats);
-            }
-            if (!sortedStats.isEmpty()) {
-                return sortedStats.get(sortedStats.lastKey()).getPackageName();
+        while (usageEvents.hasNextEvent()) {
+            usageEvents.getNextEvent(event);
+            if (event.getEventType() == android.app.usage.UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                currentPackage = event.getPackageName();
             }
         }
-        return null;
+        return currentPackage;
     }
 
     @Override

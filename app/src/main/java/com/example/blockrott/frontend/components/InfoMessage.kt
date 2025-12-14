@@ -17,6 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.blockrott.frontend.theme.*
 
+import androidx.compose.ui.window.DialogProperties
+
 enum class DialogType {
     ERROR,
     SUCCESS,
@@ -29,7 +31,10 @@ fun AlertDialog(
     onConfirmation: () -> Unit,
     onDismiss: () -> Unit,
     dialogTitle: String,
-    dialogExplanation: String
+    dialogExplanation: String,
+    confirmText: String = "Entendido",
+    dismissText: String = "Cerrar",
+    properties: DialogProperties = DialogProperties()
 ) {
     val icon: ImageVector
     val iconTint: Color
@@ -55,6 +60,7 @@ fun AlertDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        properties = properties,
         icon = {
             Icon(icon, contentDescription = type.name, tint = iconTint)
         },
@@ -75,12 +81,12 @@ fun AlertDialog(
         },
         confirmButton = {
             TextButton(onClick = onConfirmation) {
-                Text("Entendido", fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.secondary)
+                Text(confirmText, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.secondary)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cerrar", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(dismissText, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     )
