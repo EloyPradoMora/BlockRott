@@ -27,11 +27,6 @@ public class BlockrottBackendApplication {
 	}
 
 	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-
-	@Bean
 
 	public CommandLineRunner primeraPrueba(RepositorioUsuario repositorioUsuario, DataSource dataSource) {
 		return args -> {
