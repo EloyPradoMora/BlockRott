@@ -146,7 +146,7 @@ public class AppMonitorService extends Service {
         if (usm == null)
             return null;
         long time = System.currentTimeMillis();
-        android.app.usage.UsageEvents usageEvents = usm.queryEvents(time - (60 * 1000), time);
+        android.app.usage.UsageEvents usageEvents = usm.queryEvents(time - (5 * 60 * 1000), time);
         android.app.usage.UsageEvents.Event event = new android.app.usage.UsageEvents.Event();
         String currentPackage = null;
 
@@ -156,7 +156,21 @@ public class AppMonitorService extends Service {
                 currentPackage = event.getPackageName();
             }
         }
-        return currentPackage;
+        if (currentPackage != null) {
+            return currentPackage;
+        }
+        //Si no hay eventos recientes, buscamos la app con el último tiempo de uso
+        List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - (1000 * 60 * 60 * 24), time);
+        if (stats != null) {
+            SortedMap<Long, UsageStats> mySortedMap = new TreeMap<>();
+            for (UsageStats usageStats : stats) {
+                mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+            }
+            if (!mySortedMap.isEmpty()) {
+                return mySortedMap.get(mySortedMap.lastKey()).getPackageName();
+            }
+        }
+        return null;
     }
 
     @Override

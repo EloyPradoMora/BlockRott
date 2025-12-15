@@ -31,7 +31,9 @@ data class HomeUiState(
     val tiempoTotal: String = "0m",
     val permisosConcedidos: Boolean = false,
     val showBlockConfig: Boolean = false,
-    val appsList: List<String> = emptyList()
+    val appsList: List<String> = emptyList(),
+    val showTimeLimitConfig: Boolean = false,
+    val appLimits: Map<String, Double> = emptyMap()
 )
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -92,6 +94,29 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun ocultarEstadisticas() {
         _uiState.update { it.copy(showStatistics = false) }
+    }
+
+    fun mostrarConfiguracionTiempo() {
+        val currentApps = usuario.especificacionesApp.map { it.nombreApp }
+        val currentLimits = usuario.especificacionesApp.associate { 
+            val hours = it.tiempoMaximoUso.toDouble() / (1000 * 60 * 60)
+            val displayHours = if (hours > 23.0) 24.0 else (Math.round(hours * 2) / 2.0)
+            it.nombreApp to displayHours
+        }
+        _uiState.update { it.copy(showTimeLimitConfig = true, appsList = currentApps, appLimits = currentLimits) }
+    }
+
+    fun ocultarConfiguracionTiempo() {
+        _uiState.update { it.copy(showTimeLimitConfig = false) }
+    }
+
+    fun actualizarLimiteApp(nombreApp: String, horas: Double) {
+        // Buscamos el paquete correspondiente al nombre de la app (simplificación)
+        val appSpec = usuario.especificacionesApp.find { it.nombreApp == nombreApp }
+        appSpec?.let {
+            val millis = (horas * 60 * 60 * 1000).toLong()
+            usuario.actualizarTiempoLimite(it.nombrePaquete, millis)
+        }
     }
 
     private fun iniciarServicioDeMonitoreo(context: Context) {

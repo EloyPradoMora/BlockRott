@@ -193,4 +193,15 @@ public class Usuario {
             }
         }
     }
+
+    public void actualizarTiempoLimite(String nombrePaquete, long nuevoTiempo) {
+        for (EspecificacionApp app : especificacionesApp) {
+            if (app.getNombrePaquete().equals(nombrePaquete)) {
+                app.setTiempoMaximoUso(nuevoTiempo);
+                // Si cambiamos el tiempo vemos si debe bloquear o desbloquear
+                app.verificarLimiteTiempo();
+                return;
+            }
+        }
+    }
 }

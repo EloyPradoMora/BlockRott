@@ -30,6 +30,7 @@ import com.example.blockrott.frontend.components.BlockButton
 import androidx.compose.runtime.collectAsState
 import com.example.blockrott.frontend.components.BlockConfig
 import com.example.blockrott.frontend.components.BottomSheet
+import com.example.blockrott.frontend.components.TimeLimitConfigSheet
 
 @Composable
 fun HomeScreen(
@@ -85,7 +86,8 @@ fun HomeScreen(
                         weeklyAverage = "3h 59min",
                         dailyHours = listOf(
                             2.37F, 6.67F, 2.1F, 1.2F, 5.13F, 7.1F, 3.4F
-                        )
+                        ),
+                        onConfigClick = { viewModel.mostrarConfiguracionTiempo() }
                     )
                 }
             } else {
@@ -114,5 +116,15 @@ fun HomeScreen(
                 }
             )
         }
+    }
+    if (uiState.showTimeLimitConfig) {
+        TimeLimitConfigSheet(
+            appsList = uiState.appsList,
+            appLimits = uiState.appLimits,
+            onDismiss = { viewModel.ocultarConfiguracionTiempo() },
+            onUpdateLimit = { appName, limit ->
+                viewModel.actualizarLimiteApp(appName, limit)
+            }
+        )
     }
 }

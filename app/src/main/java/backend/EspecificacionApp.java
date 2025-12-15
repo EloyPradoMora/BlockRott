@@ -115,4 +115,7 @@ public class EspecificacionApp {
     public long getTiempoMaximoUso() {
         return this.tiempoMaximoUso;
     }
+    public void setTiempoMaximoUso(long tiempoMaximoUso) {
+        this.tiempoMaximoUso = tiempoMaximoUso;
+    }
 }

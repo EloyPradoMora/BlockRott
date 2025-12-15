@@ -34,7 +34,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.blockrott.frontend.theme.*
+import com.example.blockrott.frontend.theme.*
 import com.example.blockrott.frontend.utils.FrontendUtils
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 
 data class UsageStats(val appName:String, val usageTime: String)
 @Composable
@@ -42,7 +52,8 @@ fun AppStatistics(
     useHours : String,
     usedApps: List<UsageStats>,
     weeklyAverage: String,
-    dailyHours: List<Float>
+    dailyHours: List<Float>,
+    onConfigClick: () -> Unit
 ){
     val utils = FrontendUtils()
     val week = listOf("Lun","Mar","Mié","Jue","Vie","Sáb","Dom")
@@ -63,37 +74,52 @@ fun AppStatistics(
         modifier = Modifier
             .size(width = 350.dp, height = 550.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            MySegmentdButton(
-                options = statistics,
-                selectedIndex = 0,
-                onOptionSelected = {index -> selectedIndex = index}
-            )
-            if (selectedIndex == 0){
-                Box(
-                    modifier = Modifier
-                        .size(200.dp),
-                    contentAlignment = Alignment.Center
-                ){
-                    DailyPieChart(
-                        data = dataList,
-                        modifier = Modifier.matchParentSize()
-                    )
-                    Text(
-                        text = useHours,
-                        fontSize = 35.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                MySegmentdButton(
+                    options = statistics,
+                    selectedIndex = 0,
+                    onOptionSelected = { index -> selectedIndex = index }
+                )
+                if (selectedIndex == 0) {
+                    Box(
+                        modifier = Modifier
+                            .size(200.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        DailyPieChart(
+                            data = dataList,
+                            modifier = Modifier.matchParentSize()
+                        )
+                        Text(
+                            text = useHours,
+                            fontSize = 35.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    AppStatisticsContent(usedApps = usedApps)
+                } else {
+                    WeekStatistics(dailyHours, week, weeklyAverage)
                 }
-                AppStatisticsContent(usedApps = usedApps)
-            } else {
-                WeekStatistics(dailyHours,week, weeklyAverage)
+            }
+            // Icono de engranaje
+            IconButton(
+                onClick = onConfigClick,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Configurar Tiempo",
+                    tint = Color.Gray
+                )
             }
         }
     }
@@ -212,6 +238,67 @@ fun AppConfig(
                     onToggle = onToggleApp
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimeLimitConfigSheet(
+    appsList: List<String>,
+    appLimits: Map<String, Double>,
+    onDismiss: () -> Unit,
+    onUpdateLimit: (String, Double) -> Unit
+) {
+    val options = listOf(0.5, 1.0, 1.5, 2.0, 2.5, 24.0)
+    BottomSheet(showBottomSheet = true, onDismiss = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Configurar Límite de Tiempo",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            appsList.forEach { appName ->
+                Row(
+                   modifier = Modifier
+                       .fillMaxWidth()
+                       .padding(vertical = 8.dp),
+                   verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = appName, fontSize = 18.sp, modifier = Modifier.weight(1f))
+                    var expanded by remember { mutableStateOf(false) }
+                    // Inicializar con limite actual o 24 hrs si no se detecta
+                    var selectedOption by remember { mutableStateOf(appLimits[appName] ?: 24.0) }
+                    
+                    Box {
+                        Button(onClick = { expanded = true }) {
+                            Text(text = if(selectedOption >= 24.0) "Sin Límite" else "${selectedOption}h")
+                        }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            options.forEach { option ->
+                                DropdownMenuItem(
+                                    text = { Text(if(option == 24.0) "24h (Sin Límite)" else "${option}h") },
+                                    onClick = { 
+                                        selectedOption = option
+                                        expanded = false
+                                        onUpdateLimit(appName, option)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
