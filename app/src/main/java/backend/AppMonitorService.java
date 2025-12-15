@@ -34,6 +34,8 @@ public class AppMonitorService extends Service {
     private Runnable monitoringRunnable;
     private Usuario usuario;
     private String lastBlockedPackage = "";
+    private long lastSaveTime = 0;
+    private static final long SAVE_INTERVAL_MS = 60000; // 1 minuto
 
     @Override
     public void onCreate() {
@@ -94,6 +96,13 @@ public class AppMonitorService extends Service {
         }
 
         usuario.monitoreoApps();
+
+        // Guardar estadísticas periodicamente
+        if (currentTime - lastSaveTime > SAVE_INTERVAL_MS) {
+            usuario.guardarEstadisticas();
+            lastSaveTime = currentTime;
+            Log.d(TAG, "Estadisticas guardadas");
+        }
 
         if (foregroundApp != null && foregroundApp.equals(getPackageName())) {
             monitoringHandler.postDelayed(monitoringRunnable, MONITOR_INTERVAL_MS);
@@ -159,8 +168,9 @@ public class AppMonitorService extends Service {
         if (currentPackage != null) {
             return currentPackage;
         }
-        //Si no hay eventos recientes, buscamos la app con el último tiempo de uso
-        List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - (1000 * 60 * 60 * 24), time);
+        // Si no hay eventos recientes, buscamos la app con el último tiempo de uso
+        List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - (1000 * 60 * 60 * 24),
+                time);
         if (stats != null) {
             SortedMap<Long, UsageStats> mySortedMap = new TreeMap<>();
             for (UsageStats usageStats : stats) {
@@ -176,6 +186,9 @@ public class AppMonitorService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (usuario != null) {
+            usuario.guardarEstadisticas();
+        }
         Log.i(TAG, "Servicio OnDestroy");
         monitoringHandler.removeCallbacks(monitoringRunnable);
     }

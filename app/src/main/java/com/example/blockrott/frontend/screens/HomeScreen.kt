@@ -83,10 +83,8 @@ fun HomeScreen(
                     AppStatistics(
                         useHours = uiState.tiempoTotal,
                         usedApps = uiState.listaEstadisticas,
-                        weeklyAverage = "3h 59min",
-                        dailyHours = listOf(
-                            2.37F, 6.67F, 2.1F, 1.2F, 5.13F, 7.1F, 3.4F
-                        ),
+                        weeklyAverage = uiState.weeklyAverage,
+                        dailyHours = uiState.weeklyStats,
                         onConfigClick = { viewModel.mostrarConfiguracionTiempo() }
                     )
                 }

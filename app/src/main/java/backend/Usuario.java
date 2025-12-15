@@ -16,6 +16,7 @@ import android.provider.Settings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Calendar;
+import java.util.Map;
 
 public class Usuario {
     private static volatile Usuario instance;
@@ -26,15 +27,21 @@ public class Usuario {
     private ConfiguracionVisual configuracionVisual;
     private ArrayList<Conexion> conexiones;
     private boolean bloqueoGlobal;
-    public boolean agregarEspecificacionNueva(String nombreApp, String nombrePaquete, long tiempoMaximoDeUso){
-        this.especificacionesApp.add(new EspecificacionApp(nombreApp, nombrePaquete,tiempoMaximoDeUso, this.applicationContext));
+    private UsoDiario usoDiario;
+    private UsoSemanal usoSemanal;
+
+    public boolean agregarEspecificacionNueva(String nombreApp, String nombrePaquete, long tiempoMaximoDeUso) {
+        this.especificacionesApp
+                .add(new EspecificacionApp(nombreApp, nombrePaquete, tiempoMaximoDeUso, this.applicationContext));
         return true;
     }
 
-    private Usuario(Context context){
+    private Usuario(Context context) {
         this.applicationContext = context.getApplicationContext(); // Importante
         especificacionesApp = new ArrayList<>();
         this.bloqueoGlobal = false;
+        this.usoDiario = new UsoDiario(this.applicationContext);
+        this.usoSemanal = new UsoSemanal(this.applicationContext);
         cargarAppsInstaladas(context);
     }
 
@@ -58,7 +65,7 @@ public class Usuario {
         }
     }
 
-    //Aqui agregamos las apps que no queremos bloquear
+    // Aqui agregamos las apps que no queremos bloquear
     private boolean isAppExcluded(String packageName) {
         return packageName.startsWith("com.android.chrome") ||
                 packageName.startsWith("com.google.android.gm") ||
@@ -86,25 +93,26 @@ public class Usuario {
         agregarEspecificacionNueva(appName, packageName, tiempoMaximo);
     }
 
-    public String revisarTiempos(){
-        String resultado= "";
-        for (EspecificacionApp especificacion: especificacionesApp) {
+    public String revisarTiempos() {
+        String resultado = "";
+        for (EspecificacionApp especificacion : especificacionesApp) {
             resultado += especificacion.obtenerNombreLegibleApp() + "," + revisarUso(especificacion) + "\n";
         }
         return resultado;
     }
-    public String revisarUso(EspecificacionApp especificacion){
+
+    public String revisarUso(EspecificacionApp especificacion) {
         long rawTimeMillis = especificacion.obtenerTiempoDeUsoAplicacion();
         return especificacion.convertirTiempoLegible(rawTimeMillis);
     }
+
     /**
-    *@param
-    *@return
-    */
-    public boolean verificarPermisosUsoEstadistica(Context context){
+     * @param
+     * @return
+     */
+    public boolean verificarPermisosUsoEstadistica(Context context) {
         try {
-            AppOpsManager appOpsManager =
-                    (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
 
             if (appOpsManager == null) {
                 return false;
@@ -120,19 +128,20 @@ public class Usuario {
         }
     }
 
-    public boolean verificarPermisoSuperposicion(Context context){
+    public boolean verificarPermisoSuperposicion(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return Settings.canDrawOverlays(context);
         }
         return true;
     }
 
-    public void bloquearApps(Context context){
+    public void bloquearApps(Context context) {
         this.bloqueoGlobal = !this.bloqueoGlobal;
         mostrarMensajeDeBloqueo(context);
     }
-    private void mostrarMensajeDeBloqueo(Context context){
-        if(bloqueoGlobal){
+
+    private void mostrarMensajeDeBloqueo(Context context) {
+        if (bloqueoGlobal) {
             new AlertDialog.Builder(context)
                     .setTitle("App Bloqueada")
                     .setMessage("Se han bloqueado las aplicaciones")
@@ -144,7 +153,7 @@ public class Usuario {
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
-        }else{
+        } else {
             new AlertDialog.Builder(context)
                     .setTitle("App Desbloqueada")
                     .setMessage("Se han liberado las aplicaciones")
@@ -159,8 +168,8 @@ public class Usuario {
         }
     }
 
-    public void monitoreoApps(){
-        for (EspecificacionApp especifico: this.especificacionesApp) {
+    public void monitoreoApps() {
+        for (EspecificacionApp especifico : this.especificacionesApp) {
             especifico.verificarLimiteTiempo();
         }
     }
@@ -179,9 +188,11 @@ public class Usuario {
     public boolean isBloqueoGlobal() {
         return this.bloqueoGlobal;
     }
+
     public ArrayList<EspecificacionApp> getEspecificacionesApp() {
         return this.especificacionesApp;
     }
+
     public void extenderTiempoLimite(String packageName, long extensionMillis) {
         for (EspecificacionApp app : especificacionesApp) {
             if (app.getNombrePaquete().equals(packageName)) {
@@ -203,5 +214,16 @@ public class Usuario {
                 return;
             }
         }
+    }
+
+    public void guardarEstadisticas() {
+        for (EspecificacionApp app : especificacionesApp) {
+            long tiempoActual = app.obtenerTiempoDeUsoAplicacion();
+            usoDiario.guardarUsoDiario(app.getNombrePaquete(), tiempoActual);
+        }
+    }
+
+    public Map<String, Long> obtenerEstadisticasGrafico(String packageName) {
+        return usoSemanal.obtenerEstadisticasSemanales(packageName);
     }
 }

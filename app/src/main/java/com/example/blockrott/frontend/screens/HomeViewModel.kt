@@ -2,38 +2,37 @@ package com.example.blockrott.frontend.screens
 
 import android.app.Application
 import android.content.Context
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
 import android.content.Intent
 import android.os.Build
-import android.provider.Settings
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.AndroidViewModel
 import backend.AppMonitorService
 import backend.Usuario
 import com.example.blockrott.frontend.components.UsageStats
 import com.example.blockrott.frontend.utils.calcularTiempoTotal
 import com.example.blockrott.frontend.utils.formatearMinutosAHorasMinutos
-import com.example.blockrott.frontend.utils.formatearMinutosAHorasMinutos
-import com.example.blockrott.frontend.utils.verificarYPedirPermisosIniciales
 import com.example.blockrott.frontend.utils.tiempoAMinutos
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import com.example.blockrott.frontend.utils.verificarYPedirPermisosIniciales
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 // Estado de la UI
 data class HomeUiState(
-    val showStatistics: Boolean = false,
-    val listaEstadisticas: List<UsageStats> = emptyList(),
-    val tiempoTotal: String = "0m",
-    val permisosConcedidos: Boolean = false,
-    val showBlockConfig: Boolean = false,
-    val appsList: List<String> = emptyList(),
-    val showTimeLimitConfig: Boolean = false,
-    val appLimits: Map<String, Double> = emptyMap()
+        val showStatistics: Boolean = false,
+        val listaEstadisticas: List<UsageStats> = emptyList(),
+        val tiempoTotal: String = "0m",
+        val permisosConcedidos: Boolean = false,
+        val showBlockConfig: Boolean = false,
+        val appsList: List<String> = emptyList(),
+        val showTimeLimitConfig: Boolean = false,
+        val appLimits: Map<String, Double> = emptyMap(),
+        val weeklyStats: List<Float> = emptyList(),
+        val weeklyAverage: String = "0m"
 )
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -50,7 +49,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun inicializarApps(context: Context) {
-       // Las apps se cargan en el constructor de usuario
+        // Las apps se cargan en el constructor de usuario
     }
     fun actualizarEstadisticas(context: Context) {
         inicializarApps(context)
@@ -60,32 +59,94 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
         val rawUseTimeString = usuario.revisarTiempos()
-        val listaTemporal: List<UsageStats> = rawUseTimeString.lines().filter { it.isNotBlank() }
-            .mapNotNull { line ->
-                val parts = line.split(',')
-                if (parts.size == 2) {
-                    UsageStats(appName = parts[0].trim(), usageTime = parts[1].trim())
-                } else {
-                    null
-                }
-            }.sortedByDescending { tiempoAMinutos(it.usageTime) }
+        val listaTemporal: List<UsageStats> =
+                rawUseTimeString
+                        .lines()
+                        .filter { it.isNotBlank() }
+                        .mapNotNull { line ->
+                            val parts = line.split(',')
+                            if (parts.size == 2) {
+                                UsageStats(appName = parts[0].trim(), usageTime = parts[1].trim())
+                            } else {
+                                null
+                            }
+                        }
+                        .sortedByDescending { tiempoAMinutos(it.usageTime) }
 
         val totalMinutos = calcularTiempoTotal(listaTemporal)
         val tiempoTotalFormateado = formatearMinutosAHorasMinutos(totalMinutos)
 
+        // Logica para estadisticas semanales (Grafico)
+        val hoy = LocalDate.now()
+        val inicioSemana = hoy.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+        val dailyTotals = mutableMapOf<String, Long?>()
+
+        // Inicializamos mapa con null
+        for (i in 0 until 7) {
+            val fecha = inicioSemana.plusDays(i.toLong()).toString()
+            dailyTotals[fecha] = null
+        }
+
+        // Sumamos el uso de todas las apps monitoreadas
+        for (appSpec in usuario.especificacionesApp) {
+            val statsApp = usuario.obtenerEstadisticasGrafico(appSpec.nombrePaquete)
+            for (i in 0 until 7) {
+                val fecha = inicioSemana.plusDays(i.toLong()).toString()
+                // En UsoSemanal, si no existe la clave para esa fecha, retorna null (si lo
+                // cambiamos a que retorne null)
+                // OJO: UsoSemanal retorna Map<String, Long>, el Long puede ser null si asi lo
+                // definimos o si usamos getOrDefault
+                // En nuestra implementacion java devuelve null si no existe
+
+                if (statsApp.containsKey(fecha)) {
+                    val usoDia = statsApp[fecha]
+                    if (usoDia != null) {
+                        val currentTotal = dailyTotals[fecha] ?: 0L
+                        dailyTotals[fecha] = currentTotal + usoDia
+                    }
+                }
+            }
+        }
+
+        val weeklyStatsList = mutableListOf<Float>()
+        var totalWeeklyMillis = 0L
+        var daysContributed = 0
+
+        for (i in 0 until 7) {
+            val fecha = inicioSemana.plusDays(i.toLong()).toString()
+            val totalDia = dailyTotals[fecha]
+
+            if (totalDia != null) {
+                // Convertir a horas para el grafico
+                val horas = totalDia.toFloat() / (1000 * 60 * 60)
+                weeklyStatsList.add(horas)
+                totalWeeklyMillis += totalDia
+                daysContributed++
+            } else {
+                weeklyStatsList.add(0f)
+            }
+        }
+
+        val avgMillis = if (daysContributed > 0) totalWeeklyMillis / daysContributed else 0
+        val avgString = formatearMinutosAHorasMinutos((avgMillis / 1000 / 60).toInt())
+
         _uiState.update { currentState ->
             currentState.copy(
-                listaEstadisticas = listaTemporal,
-                tiempoTotal = tiempoTotalFormateado,
-                showStatistics = true
+                    listaEstadisticas = listaTemporal,
+                    tiempoTotal = tiempoTotalFormateado,
+                    showStatistics = true,
+                    weeklyStats = weeklyStatsList,
+                    weeklyAverage = avgString
             )
         }
     }
-    fun mostrarBlockConfig() { 
+    fun mostrarBlockConfig() {
         val currentApps = usuario.especificacionesApp.map { it.nombreApp }
-        _uiState.update { it.copy(showBlockConfig = true, appsList = currentApps) } 
+        _uiState.update { it.copy(showBlockConfig = true, appsList = currentApps) }
     }
-    fun ocultarBlockConfig() { _uiState.update { it.copy(showBlockConfig = false) } }
+    fun ocultarBlockConfig() {
+        _uiState.update { it.copy(showBlockConfig = false) }
+    }
 
     fun bloquearApps(context: Context) {
         usuario.bloquearApps(context)
@@ -98,12 +159,15 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     fun mostrarConfiguracionTiempo() {
         val currentApps = usuario.especificacionesApp.map { it.nombreApp }
-        val currentLimits = usuario.especificacionesApp.associate { 
-            val hours = it.tiempoMaximoUso.toDouble() / (1000 * 60 * 60)
-            val displayHours = if (hours > 23.0) 24.0 else (Math.round(hours * 2) / 2.0)
-            it.nombreApp to displayHours
+        val currentLimits =
+                usuario.especificacionesApp.associate {
+                    val hours = it.tiempoMaximoUso.toDouble() / (1000 * 60 * 60)
+                    val displayHours = if (hours > 23.0) 24.0 else (Math.round(hours * 2) / 2.0)
+                    it.nombreApp to displayHours
+                }
+        _uiState.update {
+            it.copy(showTimeLimitConfig = true, appsList = currentApps, appLimits = currentLimits)
         }
-        _uiState.update { it.copy(showTimeLimitConfig = true, appsList = currentApps, appLimits = currentLimits) }
     }
 
     fun ocultarConfiguracionTiempo() {
