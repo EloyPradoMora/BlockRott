@@ -87,8 +87,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
     fun ocultarBlockConfig() { _uiState.update { it.copy(showBlockConfig = false) } }
 
-    fun bloquearApps(context: Context) {
-        usuario.bloquearApps(context)
+    fun bloquearApps(context: Context, apps: List<String>) {
+        usuario.bloquearApps(context, apps)
         ocultarBlockConfig()
     }
 

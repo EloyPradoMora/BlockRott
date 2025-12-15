@@ -35,7 +35,7 @@ fun BlockConfig(
     modifier: Modifier = Modifier,
     appsList: List<String>,
     timeList: List<Int>,
-    onClickConfirm: () -> Unit
+    onClickConfirm: (List<String>) -> Unit
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
     val options = listOf("Apps", "Min")
@@ -102,7 +102,7 @@ fun BlockConfig(
                     onClickConfirm = {
                         if (selectedApps.isEmpty()){
                             showWarningDialog = true
-                        } else{ onClickConfirm() }
+                        } else{ onClickConfirm(selectedApps.toList()) }
                     }
                 )
             } else {

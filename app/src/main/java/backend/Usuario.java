@@ -135,8 +135,30 @@ public class Usuario {
         return true;
     }
 
-    public void bloquearApps(Context context){
+    private List<String> appsBloqueadasGlobalmente = new ArrayList<>();
+
+    public boolean isAppBlockedGlobal(String packageName) {
+        return this.bloqueoGlobal && this.appsBloqueadasGlobalmente.contains(packageName);
+    }
+
+    public void bloquearApps(Context context, List<String> appNames) {
         this.bloqueoGlobal = !this.bloqueoGlobal;
+
+        if (this.bloqueoGlobal) {
+            // activando el bloqueo
+            this.appsBloqueadasGlobalmente.clear();
+            for (String name : appNames) {
+                for (EspecificacionApp spec : especificacionesApp) {
+                    if (spec.getNombreApp().equals(name)) {
+                        this.appsBloqueadasGlobalmente.add(spec.getNombrePaquete());
+                        break;
+                    }
+                }
+            }
+        } else {
+            //desactivando el bloqueo
+            this.appsBloqueadasGlobalmente.clear();
+        }
         mostrarMensajeDeBloqueo(context);
     }
     private void mostrarMensajeDeBloqueo(Context context){

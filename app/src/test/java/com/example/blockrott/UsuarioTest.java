@@ -80,13 +80,14 @@ public class UsuarioTest {
     @Test
     public void testBloquearApps_CambiaEstadoYMuestraDialogo() {
         Usuario usuario = Usuario.getInstance(context);
-        // Estado inicial (asumimos false)
-        if (usuario.isBloqueoGlobal()) usuario.bloquearApps(context); // Reset si estaba true
+        usuario.bloquearApps(context, new ArrayList<>());
+        assertTrue(usuario.isBloqueoGlobal());
 
+        usuario.bloquearApps(context, new ArrayList<>());
         assertFalse(usuario.isBloqueoGlobal());
 
         // Ejecutar bloqueo
-        usuario.bloquearApps(context);
+        usuario.bloquearApps(context, new ArrayList<>());
 
         assertTrue("El bloqueo global debería activarse", usuario.isBloqueoGlobal());
 
