@@ -27,4 +27,7 @@ interface BlockRottApiService {
     suspend fun enviarReporte(
         @Body request: SolicitudReporteSemanal
     ): Response<ResponseBody>
+
+    @POST("api/usuarios/anonimo")
+    suspend fun registrarDispositivo(): Response<ResponseBody>
 }

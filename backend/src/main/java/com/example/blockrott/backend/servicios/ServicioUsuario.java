@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 public class ServicioUsuario {
@@ -46,5 +47,18 @@ public class ServicioUsuario {
         respuesta.setFechaCreacion(usuario.getFechaCreacion());
 
         return respuesta;
+    }
+
+    public String registrarUsuarioAnonimo() {
+        String uuid = UUID.randomUUID().toString();
+
+        Usuario nuevoUsuario = new Usuario();
+        nuevoUsuario.setNombreUsuario("Dispositivo " + uuid.substring(0, 8));
+        nuevoUsuario.setCorreo(uuid);
+        nuevoUsuario.setContrasenaHash(passwordEncoder.encode(uuid));
+        nuevoUsuario.setFechaCreacion(LocalDateTime.now());
+
+        repositorioUsuario.save(nuevoUsuario);
+        return uuid;
     }
 }

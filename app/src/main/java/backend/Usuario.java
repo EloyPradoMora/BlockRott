@@ -24,36 +24,62 @@ public class Usuario {
     private ArrayList<Conexion> conexiones;
 
     private boolean bloqueoGlobal;
-    public boolean agregarEspecificacionNueva(String nombreApp, String nombrePaquete, long tiempoMaximoDeUso){
-        this.especificacionesApp.add(new EspecificacionApp(nombreApp, nombrePaquete,tiempoMaximoDeUso, this.applicationContext));
+
+    private static final String PREFS_NAME = "BlockRottPrefs";
+    private static final String KEY_IDENTITY = "user_identity_uuid";
+    private String codigoIdentidad;
+
+    public boolean tieneIdentidad() {
+        return codigoIdentidad != null;
+    }
+
+    public String getCodigoIdentidad() {
+        return codigoIdentidad;
+    }
+
+    public void guardarIdentidad(String uuid) {
+        this.codigoIdentidad = uuid;
+        android.content.SharedPreferences prefs = applicationContext.getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_IDENTITY, uuid).apply();
+    }
+
+    public boolean agregarEspecificacionNueva(String nombreApp, String nombrePaquete, long tiempoMaximoDeUso) {
+        this.especificacionesApp
+                .add(new EspecificacionApp(nombreApp, nombrePaquete, tiempoMaximoDeUso, this.applicationContext));
         return true;
     }
 
-    private Usuario(Context context){
+    private Usuario(Context context) {
         this.applicationContext = context.getApplicationContext(); // Importante
         especificacionesApp = new ArrayList<>();
         this.bloqueoGlobal = false;
+
+        android.content.SharedPreferences prefs = applicationContext.getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        this.codigoIdentidad = prefs.getString(KEY_IDENTITY, null);
     }
 
-    public String revisarTiempos(){
-        String resultado= "";
-        for (EspecificacionApp especificacion: especificacionesApp) {
+    public String revisarTiempos() {
+        String resultado = "";
+        for (EspecificacionApp especificacion : especificacionesApp) {
             resultado += especificacion.obtenerNombreLegibleApp() + "," + revisarUso(especificacion) + "\n";
         }
         return resultado;
     }
-    public String revisarUso(EspecificacionApp especificacion){
+
+    public String revisarUso(EspecificacionApp especificacion) {
         long rawTimeMillis = especificacion.obtenerTiempoDeUsoAplicacion();
         return especificacion.convertirTiempoLegible(rawTimeMillis);
     }
+
     /**
-    *@param
-    *@return
-    */
-    public boolean verificarPermisosUsoEstadistica(Context context){
+     * @param
+     * @return
+     */
+    public boolean verificarPermisosUsoEstadistica(Context context) {
         try {
-            AppOpsManager appOpsManager =
-                    (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
 
             if (appOpsManager == null) {
                 return false;
@@ -62,8 +88,7 @@ public class Usuario {
             int mode = appOpsManager.checkOpNoThrow(
                     AppOpsManager.OPSTR_GET_USAGE_STATS,
                     android.os.Process.myUid(),
-                    context.getPackageName()
-            );
+                    context.getPackageName());
             return mode == AppOpsManager.MODE_ALLOWED;
 
         } catch (Exception e) {
@@ -72,19 +97,20 @@ public class Usuario {
         }
     }
 
-    public boolean verificarPermisoSuperposicion(Context context){
+    public boolean verificarPermisoSuperposicion(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             return Settings.canDrawOverlays(context);
         }
         return true;
     }
 
-    public void bloquearApps(Context context){
+    public void bloquearApps(Context context) {
         this.bloqueoGlobal = !this.bloqueoGlobal;
         mostrarMensajeDeBloqueo(context);
     }
-    private void mostrarMensajeDeBloqueo(Context context){
-        if(bloqueoGlobal){
+
+    private void mostrarMensajeDeBloqueo(Context context) {
+        if (bloqueoGlobal) {
             new AlertDialog.Builder(context)
                     .setTitle("App Bloqueada")
                     .setMessage("Se han bloqueado las aplicaciones")
@@ -96,7 +122,7 @@ public class Usuario {
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
-        }else{
+        } else {
             new AlertDialog.Builder(context)
                     .setTitle("App Desbloqueada")
                     .setMessage("Se han liberado las aplicaciones")
@@ -111,8 +137,8 @@ public class Usuario {
         }
     }
 
-    public void monitoreoApps(){
-        for (EspecificacionApp especifico: this.especificacionesApp) {
+    public void monitoreoApps() {
+        for (EspecificacionApp especifico : this.especificacionesApp) {
             especifico.verificarLimiteTiempo();
         }
     }
@@ -131,9 +157,11 @@ public class Usuario {
     public boolean isBloqueoGlobal() {
         return this.bloqueoGlobal;
     }
+
     public ArrayList<EspecificacionApp> getEspecificacionesApp() {
         return this.especificacionesApp;
     }
+
     public void extenderTiempoLimite(String packageName, long extensionMillis) {
         for (EspecificacionApp app : especificacionesApp) {
             if (app.getNombrePaquete().equals(packageName)) {

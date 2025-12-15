@@ -1,6 +1,5 @@
 package com.example.blockrott.backend.controladores;
 
-
 import com.example.blockrott.backend.dto.RespuestaUsuario;
 import com.example.blockrott.backend.dto.SolicitudRegistro;
 import com.example.blockrott.backend.entidades.Usuario;
@@ -34,6 +33,16 @@ public class ControladorUsuario {
             return ResponseEntity.status(HttpStatus.CREATED).body("Usuario registrado");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/anonimo")
+    public ResponseEntity<String> registrarUsuarioAnonimo() {
+        try {
+            String uuid = servicioUsuario.registrarUsuarioAnonimo();
+            return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar dispositivo");
         }
     }
 
