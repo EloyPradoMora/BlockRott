@@ -32,6 +32,25 @@ public class Usuario {
     private List<String> appsBloqueadasGlobalmente = new ArrayList<>();
     private long finalizacionBloqueoGlobal = 0;
 
+    private static final String PREFS_NAME = "BlockRottPrefs";
+    private static final String KEY_IDENTITY = "user_identity_uuid";
+    private String codigoIdentidad;
+
+    public boolean tieneIdentidad() {
+        return codigoIdentidad != null;
+    }
+
+    public String getCodigoIdentidad() {
+        return codigoIdentidad;
+    }
+
+    public void guardarIdentidad(String uuid) {
+        this.codigoIdentidad = uuid;
+        android.content.SharedPreferences prefs = applicationContext.getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_IDENTITY, uuid).apply();
+    }
+
     public boolean agregarEspecificacionNueva(String nombreApp, String nombrePaquete, long tiempoMaximoDeUso) {
         this.especificacionesApp
                 .add(new EspecificacionApp(nombreApp, nombrePaquete, tiempoMaximoDeUso, this.applicationContext));
@@ -44,6 +63,11 @@ public class Usuario {
         this.bloqueoGlobal = false;
         this.usoDiario = new UsoDiario(this.applicationContext);
         this.usoSemanal = new UsoSemanal(this.applicationContext);
+
+        android.content.SharedPreferences prefs = applicationContext.getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        this.codigoIdentidad = prefs.getString(KEY_IDENTITY, null);
+
         cargarAppsInstaladas(context);
     }
 

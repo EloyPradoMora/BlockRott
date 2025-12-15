@@ -8,6 +8,9 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.AndroidViewModel
 import backend.AppMonitorService
 import backend.Usuario
+import backend.api.RetrofitClient
+import backend.dto.SolicitudUsoDiario
+import android.util.Log
 import com.example.blockrott.frontend.components.UsageStats
 import com.example.blockrott.frontend.utils.calcularTiempoTotal
 import com.example.blockrott.frontend.utils.formatearMinutosAHorasMinutos
@@ -144,6 +147,27 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                     weeklyStats = weeklyStatsList,
                     weeklyAverage = avgString
             )
+        }
+
+        // Enviar al backend
+        viewModelScope.launch(Dispatchers.IO) {
+            if (usuario.tieneIdentidad()) {
+                val totalSegundos = totalMinutos * 60L
+                val solicitud = SolicitudUsoDiario(
+                    usuarioCodigo = usuario.getCodigoIdentidad(),
+                    tiempoTotalSegundos = totalSegundos
+                )
+                try {
+                    val response = RetrofitClient.api.registrarUsoDiario(solicitud)
+                    if (response.isSuccessful) {
+                        Log.d("BlockRott", "Tiempo de uso enviado correctamente: $totalSegundos segundos")
+                    } else {
+                        Log.e("BlockRott", "Error al enviar tiempo de uso: ${response.code()}")
+                    }
+                } catch (e: Exception) {
+                    Log.e("BlockRott", "Excepción al enviar tiempo de uso", e)
+                }
+            }
         }
     }
     fun mostrarBlockConfig() {
