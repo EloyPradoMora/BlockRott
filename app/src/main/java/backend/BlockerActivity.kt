@@ -95,13 +95,14 @@ class BlockerActivity : AppCompatActivity() {
                                 showRewardedAd(currentPackageName)
                             } else {
                                 Log.d(TAG, "Anuncio de recompensa aún no está cargado.")
+                                android.widget.Toast.makeText(this@BlockerActivity, "Cargando anuncio, por favor espere...", android.widget.Toast.LENGTH_SHORT).show()
                             }
                         } else {
-                            finish()
+                            goToHome()
                         }
                     },
                     onDismiss = {
-                        finish()
+                        goToHome()
                     },
                     properties = DialogProperties(
                         dismissOnBackPress = false,
@@ -169,6 +170,14 @@ class BlockerActivity : AppCompatActivity() {
                 Log.e(TAG, "No se pudo encontrar $it")
             }
         }
+        finish()
+    }
+
+    private fun goToHome() {
+        val homeIntent = Intent(Intent.ACTION_MAIN)
+        homeIntent.addCategory(Intent.CATEGORY_HOME)
+        homeIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(homeIntent)
         finish()
     }
 }

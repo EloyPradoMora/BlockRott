@@ -29,6 +29,8 @@ public class Usuario {
     private boolean bloqueoGlobal;
     private UsoDiario usoDiario;
     private UsoSemanal usoSemanal;
+    private List<String> appsBloqueadasGlobalmente = new ArrayList<>();
+    private long finalizacionBloqueoGlobal = 0;
 
     public boolean agregarEspecificacionNueva(String nombreApp, String nombrePaquete, long tiempoMaximoDeUso) {
         this.especificacionesApp
@@ -79,7 +81,15 @@ public class Usuario {
                 packageName.startsWith("com.brave.browser") ||
                 packageName.startsWith("com.google.android.videos") ||
                 packageName.startsWith("com.whatsapp") ||
-                packageName.startsWith("com.facebook.orca");
+                packageName.startsWith("com.facebook.orca") ||
+                packageName.startsWith("com.discord") ||
+                packageName.startsWith("org.telegram.messenger") ||
+                packageName.startsWith("com.truecaller") ||
+                packageName.startsWith("com.sec.spp.push") || // Samsung Push Service
+                packageName.startsWith("com.google.android.ims") || // Carrier Services
+                packageName.startsWith("com.sec.android.app.sbrowser") || // Samsung Internet
+                packageName.startsWith("com.google.audio.hearing.visualization.accessibility.scribe") || // Live
+                packageName.startsWith("com.google.android.apps.docs.editors"); // Edits (office pero de google)
     }
 
     private void agregarSiNoExiste(PackageInfo packageInfo, PackageManager pm, long tiempoMaximo) {
@@ -135,9 +145,74 @@ public class Usuario {
         return true;
     }
 
-    public void bloquearApps(Context context) {
-        this.bloqueoGlobal = !this.bloqueoGlobal;
+    public boolean isAppBlockedGlobal(String packageName) {
+        if (this.bloqueoGlobal) {
+            if (System.currentTimeMillis() > this.finalizacionBloqueoGlobal) {
+                this.bloqueoGlobal = false;
+                this.appsBloqueadasGlobalmente.clear();
+                return false;
+            }
+            return this.appsBloqueadasGlobalmente.contains(packageName);
+        }
+        return false;
+    }
+
+    public boolean isBloqueoActivo() {
+        if (this.bloqueoGlobal && System.currentTimeMillis() < this.finalizacionBloqueoGlobal) {
+            return true;
+        }
+        // Si estaba activo pero expiró reiniciamos el estado
+        if (this.bloqueoGlobal) {
+            this.bloqueoGlobal = false;
+            this.appsBloqueadasGlobalmente.clear();
+        }
+        return false;
+    }
+
+    public String obtenerTiempoRestanteBloqueo() {
+        if (!isBloqueoActivo()) {
+            return "0s";
+        }
+        long diff = this.finalizacionBloqueoGlobal - System.currentTimeMillis();
+        long seconds = diff / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        if (hours > 0) {
+            return String.format("%dh %02dm", hours, minutes % 60);
+        } else if (minutes > 0) {
+            return String.format("%dm %02ds", minutes, seconds % 60);
+        } else {
+            return String.format("%ds", seconds);
+        }
+    }
+
+    public void bloquearApps(Context context, List<String> appNames, long durationMillis) {
+        if (isBloqueoActivo()) {
+            mostrarAlertaTiempoRestante(context);
+            return;
+        }
+        this.bloqueoGlobal = true;
+        this.finalizacionBloqueoGlobal = System.currentTimeMillis() + durationMillis;
+        // activando el bloqueo
+        this.appsBloqueadasGlobalmente.clear();
+        for (String name : appNames) {
+            for (EspecificacionApp spec : especificacionesApp) {
+                if (spec.getNombreApp().equals(name)) {
+                    this.appsBloqueadasGlobalmente.add(spec.getNombrePaquete());
+                    break;
+                }
+            }
+        }
         mostrarMensajeDeBloqueo(context);
+    }
+
+    private void mostrarAlertaTiempoRestante(Context context) {
+        new AlertDialog.Builder(context)
+                .setTitle("Bloqueo Activo")
+                .setMessage("Tiempo restante: " + obtenerTiempoRestanteBloqueo())
+                .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss())
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .show();
     }
 
     private void mostrarMensajeDeBloqueo(Context context) {
@@ -162,9 +237,8 @@ public class Usuario {
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
+
+                    }).setIcon(android.R.drawable.ic_dialog_alert).show();
         }
     }
 
@@ -186,7 +260,7 @@ public class Usuario {
     }
 
     public boolean isBloqueoGlobal() {
-        return this.bloqueoGlobal;
+        return isBloqueoActivo();
     }
 
     public ArrayList<EspecificacionApp> getEspecificacionesApp() {

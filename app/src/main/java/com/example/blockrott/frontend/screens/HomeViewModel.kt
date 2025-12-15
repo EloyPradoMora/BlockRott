@@ -20,19 +20,24 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 
 // Estado de la UI
 data class HomeUiState(
-        val showStatistics: Boolean = false,
-        val listaEstadisticas: List<UsageStats> = emptyList(),
-        val tiempoTotal: String = "0m",
-        val permisosConcedidos: Boolean = false,
-        val showBlockConfig: Boolean = false,
-        val appsList: List<String> = emptyList(),
-        val showTimeLimitConfig: Boolean = false,
-        val appLimits: Map<String, Double> = emptyMap(),
-        val weeklyStats: List<Float> = emptyList(),
-        val weeklyAverage: String = "0m"
+    val showStatistics: Boolean = false,
+    val listaEstadisticas: List<UsageStats> = emptyList(),
+    val tiempoTotal: String = "0m",
+    val permisosConcedidos: Boolean = false,
+    val showBlockConfig: Boolean = false,
+    val appsList: List<String> = emptyList(),
+    val showTimeLimitConfig: Boolean = false,
+    val appLimits: Map<String, Double> = emptyMap(),
+    val weeklyStats: List<Float> = emptyList(),
+    val weeklyAverage: String = "0m",
+    val isBlockedGlobal: Boolean = false
 )
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -46,6 +51,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             inicializarApps(getApplication())
             iniciarServicioDeMonitoreo(getApplication())
         }
+        verificarEstadoBloqueo()
     }
 
     private fun inicializarApps(context: Context) {
@@ -148,9 +154,38 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.update { it.copy(showBlockConfig = false) }
     }
 
-    fun bloquearApps(context: Context) {
-        usuario.bloquearApps(context)
+    fun bloquearApps(context: Context, apps: List<String>, durationMillis: Long) {
+        usuario.bloquearApps(context, apps, durationMillis)
         ocultarBlockConfig()
+        startBlockStatusCheck()
+    }
+    
+    fun verificarEstadoBloqueo(){
+        val isBlocked = usuario.isBloqueoGlobal
+        _uiState.update { it.copy(isBlockedGlobal = isBlocked) }
+        if (isBlocked) {
+            startBlockStatusCheck()
+        }
+    }
+
+    private var checkJob: kotlinx.coroutines.Job? = null
+
+    private fun startBlockStatusCheck() {
+        checkJob?.cancel() // Cancel previous if any
+        checkJob = viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                val isBlocked = usuario.isBloqueoGlobal
+                _uiState.update { it.copy(isBlockedGlobal = isBlocked) }
+                if (!isBlocked) {
+                    break
+                }
+                delay(1000)
+            }
+        }
+    }
+    
+    fun obtenerTiempoRestante(): String {
+        return usuario.obtenerTiempoRestanteBloqueo()
     }
 
     fun ocultarEstadisticas() {

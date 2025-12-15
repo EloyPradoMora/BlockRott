@@ -118,7 +118,7 @@ public class AppMonitorService extends Service {
         for (EspecificacionApp app : usuario.getEspecificacionesApp()) {
             if (app.getNombrePaquete().equals(foregroundApp)) {
                 String blockReason = null;
-                if (isGlobalBlock) {
+                if (isGlobalBlock && usuario.isAppBlockedGlobal(foregroundApp)) {
                     blockReason = REASON_GLOBAL_LOCK;
                 } else if (app.isBloqueada()) {
                     blockReason = REASON_TIME_LIMIT;
