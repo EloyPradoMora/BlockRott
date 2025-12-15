@@ -2,6 +2,7 @@ package backend.api
 import backend.dto.RespuestaUsuario
 import backend.dto.SolicitudRegistro
 import backend.dto.SolicitudReporteSemanal
+import backend.dto.SolicitudUsoDiario
 import retrofit2.Response
 import okhttp3.ResponseBody
 import retrofit2.http.Body
@@ -32,4 +33,7 @@ interface BlockRottApiService {
     suspend fun registrarDispositivo(
         @Query("modelo") modelo: String
     ): Response<ResponseBody>
+
+    @POST("api/usodiario")
+    suspend fun registrarUsoDiario(@Body request: SolicitudUsoDiario): Response<ResponseBody>
 }
