@@ -14,8 +14,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class ServicioUsuario {
+    // private static final org.slf4j.Logger logger =
+    // org.slf4j.LoggerFactory.getLogger(ServicioUsuario.class);
     private final RepositorioUsuario repositorioUsuario;
     private final PasswordEncoder passwordEncoder;
 
@@ -63,6 +68,8 @@ public class ServicioUsuario {
         nuevoUsuario.setFechaCreacion(LocalDateTime.now());
 
         repositorioUsuario.save(nuevoUsuario);
+        log.info("Usuario anonimo creado exitingosamente. UUID: {}, Nombre: {}", uuid,
+                nuevoUsuario.getNombreUsuario());
         return uuid;
     }
 }

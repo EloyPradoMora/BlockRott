@@ -16,9 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/api/usuarios")
+@Slf4j
 public class ControladorUsuario {
+
+    // private static final org.slf4j.Logger logger =
+    // org.slf4j.LoggerFactory.getLogger(ControladorUsuario.class);
 
     private final ServicioUsuario servicioUsuario;
 
@@ -38,6 +44,7 @@ public class ControladorUsuario {
 
     @PostMapping("/anonimo")
     public ResponseEntity<String> registrarUsuarioAnonimo(@RequestParam(required = false) String modelo) {
+        log.info("Solicitud de registro anonimo recibida. Modelo: {}", modelo != null ? modelo : "No especificado");
         try {
             String uuid = servicioUsuario.registrarUsuarioAnonimo(modelo);
             return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
