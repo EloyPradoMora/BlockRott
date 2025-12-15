@@ -37,9 +37,9 @@ public class ControladorUsuario {
     }
 
     @PostMapping("/anonimo")
-    public ResponseEntity<String> registrarUsuarioAnonimo() {
+    public ResponseEntity<String> registrarUsuarioAnonimo(@RequestParam(required = false) String modelo) {
         try {
-            String uuid = servicioUsuario.registrarUsuarioAnonimo();
+            String uuid = servicioUsuario.registrarUsuarioAnonimo(modelo);
             return ResponseEntity.status(HttpStatus.CREATED).body(uuid);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al registrar dispositivo");

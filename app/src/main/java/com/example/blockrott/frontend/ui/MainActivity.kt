@@ -23,7 +23,8 @@ class MainActivity : ComponentActivity() {
         if (!usuario.tieneIdentidad()) {
             lifecycleScope.launch {
                 try {
-                    val response = backend.api.RetrofitClient.api.registrarDispositivo()
+                    val modeloDispositivo = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
+                    val response = backend.api.RetrofitClient.api.registrarDispositivo(modeloDispositivo)
                     if (response.isSuccessful) {
                         val uuid = response.body()?.string()
                         if (uuid != null) {

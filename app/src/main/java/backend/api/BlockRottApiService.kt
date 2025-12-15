@@ -29,5 +29,7 @@ interface BlockRottApiService {
     ): Response<ResponseBody>
 
     @POST("api/usuarios/anonimo")
-    suspend fun registrarDispositivo(): Response<ResponseBody>
+    suspend fun registrarDispositivo(
+        @Query("modelo") modelo: String
+    ): Response<ResponseBody>
 }

@@ -49,11 +49,15 @@ public class ServicioUsuario {
         return respuesta;
     }
 
-    public String registrarUsuarioAnonimo() {
+    public String registrarUsuarioAnonimo(String modelo) {
         String uuid = UUID.randomUUID().toString();
 
         Usuario nuevoUsuario = new Usuario();
-        nuevoUsuario.setNombreUsuario("Dispositivo " + uuid.substring(0, 8));
+        if (modelo != null && !modelo.isEmpty()) {
+            nuevoUsuario.setNombreUsuario(modelo + " " + uuid.substring(0, 4));
+        } else {
+            nuevoUsuario.setNombreUsuario("Dispositivo " + uuid.substring(0, 8));
+        }
         nuevoUsuario.setCorreo(uuid);
         nuevoUsuario.setContrasenaHash(passwordEncoder.encode(uuid));
         nuevoUsuario.setFechaCreacion(LocalDateTime.now());
