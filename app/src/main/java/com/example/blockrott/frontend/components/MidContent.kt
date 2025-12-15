@@ -157,8 +157,13 @@ fun AppStatisticsContent(usedApps: List<UsageStats>){
                 .background(ComponentBackground, RoundedCornerShape(10.dp))
                 .padding(1.dp)
         ) {
-            usedApps.forEach { stat ->
-                UsedApps(appName = stat.appName, usageTime = stat.usageTime)
+            val utils = FrontendUtils()
+            usedApps.take(3).forEach { stat ->
+                UsedApps(
+                    appName = stat.appName, 
+                    usageTime = stat.usageTime,
+                    color = utils.colorApp(stat.appName)
+                )
             }
         }
     }

@@ -58,6 +58,7 @@ public class Usuario {
         }
     }
 
+    //Aqui agregamos las apps que no queremos bloquear
     private boolean isAppExcluded(String packageName) {
         return packageName.startsWith("com.android.chrome") ||
                 packageName.startsWith("com.google.android.gm") ||
@@ -69,7 +70,9 @@ public class Usuario {
                 packageName.startsWith("com.android.calendar") ||
                 packageName.startsWith("com.google.android.apps.meetings") ||
                 packageName.startsWith("com.brave.browser") ||
-                packageName.startsWith("com.google.android.videos");
+                packageName.startsWith("com.google.android.videos") ||
+                packageName.startsWith("com.whatsapp") ||
+                packageName.startsWith("com.facebook.orca");
     }
 
     private void agregarSiNoExiste(PackageInfo packageInfo, PackageManager pm, long tiempoMaximo) {

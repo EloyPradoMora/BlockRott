@@ -13,7 +13,9 @@ import backend.Usuario
 import com.example.blockrott.frontend.components.UsageStats
 import com.example.blockrott.frontend.utils.calcularTiempoTotal
 import com.example.blockrott.frontend.utils.formatearMinutosAHorasMinutos
+import com.example.blockrott.frontend.utils.formatearMinutosAHorasMinutos
 import com.example.blockrott.frontend.utils.verificarYPedirPermisosIniciales
+import com.example.blockrott.frontend.utils.tiempoAMinutos
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,7 +66,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     null
                 }
-            }
+            }.sortedByDescending { tiempoAMinutos(it.usageTime) }
 
         val totalMinutos = calcularTiempoTotal(listaTemporal)
         val tiempoTotalFormateado = formatearMinutosAHorasMinutos(totalMinutos)

@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.blockrott.frontend.components.UsedApps
+import androidx.compose.ui.graphics.Color
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,7 +22,7 @@ class UsedAppTest {
         val usageTime = "1h 45min"
         composeTestRule.setContent {
             UsedApps(
-                appName, usageTime
+                appName, usageTime, Color.Blue
             )
         }
         composeTestRule.onNodeWithTag("used_apps").assertIsDisplayed()
