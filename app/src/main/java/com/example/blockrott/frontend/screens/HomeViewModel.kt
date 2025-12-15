@@ -33,7 +33,8 @@ data class HomeUiState(
     val showBlockConfig: Boolean = false,
     val appsList: List<String> = emptyList(),
     val showTimeLimitConfig: Boolean = false,
-    val appLimits: Map<String, Double> = emptyMap()
+    val appLimits: Map<String, Double> = emptyMap(),
+    val isBlockedGlobal: Boolean = false
 )
 
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
@@ -47,6 +48,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             inicializarApps(getApplication())
             iniciarServicioDeMonitoreo(getApplication())
         }
+        verificarEstadoBloqueo()
     }
 
     private fun inicializarApps(context: Context) {
@@ -87,9 +89,38 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     }
     fun ocultarBlockConfig() { _uiState.update { it.copy(showBlockConfig = false) } }
 
-    fun bloquearApps(context: Context, apps: List<String>) {
-        usuario.bloquearApps(context, apps)
+    fun bloquearApps(context: Context, apps: List<String>, durationMillis: Long) {
+        usuario.bloquearApps(context, apps, durationMillis)
         ocultarBlockConfig()
+        startBlockStatusCheck()
+    }
+    
+    fun verificarEstadoBloqueo(){
+        val isBlocked = usuario.isBloqueoGlobal
+        _uiState.update { it.copy(isBlockedGlobal = isBlocked) }
+        if (isBlocked) {
+            startBlockStatusCheck()
+        }
+    }
+
+    private var checkJob: kotlinx.coroutines.Job? = null
+
+    private fun startBlockStatusCheck() {
+        checkJob?.cancel() // Cancel previous if any
+        checkJob = viewModelScope.launch(Dispatchers.IO) {
+            while (true) {
+                val isBlocked = usuario.isBloqueoGlobal
+                _uiState.update { it.copy(isBlockedGlobal = isBlocked) }
+                if (!isBlocked) {
+                    break
+                }
+                delay(1000)
+            }
+        }
+    }
+    
+    fun obtenerTiempoRestante(): String {
+        return usuario.obtenerTiempoRestanteBloqueo()
     }
 
     fun ocultarEstadisticas() {

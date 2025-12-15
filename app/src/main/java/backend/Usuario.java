@@ -26,6 +26,8 @@ public class Usuario {
     private ConfiguracionVisual configuracionVisual;
     private ArrayList<Conexion> conexiones;
     private boolean bloqueoGlobal;
+    private List<String> appsBloqueadasGlobalmente = new ArrayList<>();
+    private long finalizacionBloqueoGlobal = 0;
     public boolean agregarEspecificacionNueva(String nombreApp, String nombrePaquete, long tiempoMaximoDeUso){
         this.especificacionesApp.add(new EspecificacionApp(nombreApp, nombrePaquete,tiempoMaximoDeUso, this.applicationContext));
         return true;
@@ -135,32 +137,76 @@ public class Usuario {
         return true;
     }
 
-    private List<String> appsBloqueadasGlobalmente = new ArrayList<>();
-
     public boolean isAppBlockedGlobal(String packageName) {
-        return this.bloqueoGlobal && this.appsBloqueadasGlobalmente.contains(packageName);
+        if (this.bloqueoGlobal) {
+            if (System.currentTimeMillis() > this.finalizacionBloqueoGlobal) {
+                this.bloqueoGlobal = false;
+                this.appsBloqueadasGlobalmente.clear();
+                return false;
+            }
+            return this.appsBloqueadasGlobalmente.contains(packageName);
+        }
+        return false;
     }
 
-    public void bloquearApps(Context context, List<String> appNames) {
-        this.bloqueoGlobal = !this.bloqueoGlobal;
-
+    public boolean isBloqueoActivo() {
+        if (this.bloqueoGlobal && System.currentTimeMillis() < this.finalizacionBloqueoGlobal) {
+            return true;
+        }
+        // Si estaba activo pero expiró reiniciamos el estado
         if (this.bloqueoGlobal) {
-            // activando el bloqueo
+            this.bloqueoGlobal = false;
             this.appsBloqueadasGlobalmente.clear();
-            for (String name : appNames) {
-                for (EspecificacionApp spec : especificacionesApp) {
-                    if (spec.getNombreApp().equals(name)) {
-                        this.appsBloqueadasGlobalmente.add(spec.getNombrePaquete());
-                        break;
-                    }
+        }
+        return false;
+    }
+
+    public String obtenerTiempoRestanteBloqueo() {
+        if (!isBloqueoActivo()) {
+            return "0s";
+        }
+        long diff = this.finalizacionBloqueoGlobal - System.currentTimeMillis();
+        long seconds = diff / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        if (hours > 0) {
+            return String.format("%dh %02dm", hours, minutes % 60);
+        } else if (minutes > 0) {
+            return String.format("%dm %02ds", minutes, seconds % 60);
+        } else {
+            return String.format("%ds", seconds);
+        }
+    }
+
+    public void bloquearApps(Context context, List<String> appNames, long durationMillis) {
+        if (isBloqueoActivo()) {
+            mostrarAlertaTiempoRestante(context);
+            return;
+        }
+        this.bloqueoGlobal = true;
+        this.finalizacionBloqueoGlobal = System.currentTimeMillis() + durationMillis;
+        // activando el bloqueo
+        this.appsBloqueadasGlobalmente.clear();
+        for (String name : appNames) {
+            for (EspecificacionApp spec : especificacionesApp) {
+                if (spec.getNombreApp().equals(name)) {
+                    this.appsBloqueadasGlobalmente.add(spec.getNombrePaquete());
+                    break;
                 }
             }
-        } else {
-            //desactivando el bloqueo
-            this.appsBloqueadasGlobalmente.clear();
         }
         mostrarMensajeDeBloqueo(context);
     }
+
+    private void mostrarAlertaTiempoRestante(Context context) {
+        new AlertDialog.Builder(context)
+                .setTitle("Bloqueo Activo")
+                .setMessage("Tiempo restante: " + obtenerTiempoRestanteBloqueo())
+                .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss())
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .show();
+    }
+
     private void mostrarMensajeDeBloqueo(Context context){
         if(bloqueoGlobal){
             new AlertDialog.Builder(context)
@@ -207,7 +253,7 @@ public class Usuario {
     }
 
     public boolean isBloqueoGlobal() {
-        return this.bloqueoGlobal;
+        return isBloqueoActivo();
     }
     public ArrayList<EspecificacionApp> getEspecificacionesApp() {
         return this.especificacionesApp;

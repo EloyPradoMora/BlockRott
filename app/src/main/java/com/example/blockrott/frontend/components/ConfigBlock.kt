@@ -29,19 +29,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import com.example.blockrott.frontend.theme.ComponentSurface
+import androidx.compose.runtime.mutableLongStateOf
+
+data class TimeConfigItem(val label: String, val millis: Long)
 
 @Composable
 fun BlockConfig(
     modifier: Modifier = Modifier,
     appsList: List<String>,
-    timeList: List<Int>,
-    onClickConfirm: (List<String>) -> Unit
+    timeList: List<TimeConfigItem>,
+    onClickConfirm: (List<String>, Long) -> Unit
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
-    val options = listOf("Apps", "Min")
+    val options = listOf("Apps", "Min/Seg")
     var showWarningDialog by remember { mutableStateOf(false) }
     val selectedApps = remember { mutableStateListOf<String>() }
-    var selectedMin by remember { mutableIntStateOf(0) }
+    // Initialize with the first option if available, or 0
+    var selectedTimeMillis by remember { mutableLongStateOf(if (timeList.isNotEmpty()) timeList[0].millis else 0L) }
+
     if (showWarningDialog) {
         AlertDialog(
             type = DialogType.WARNING,
@@ -82,11 +87,11 @@ fun BlockConfig(
                 }
             }
             else {
-                items(timeList, key = { it }) { time ->
+                items(timeList, key = { it.label }) { timeItem ->
                     SwitchTime(
-                        timeConfig = time,
-                        initialChecked = time == selectedMin,
-                        onMinSelected = { selectedMin = it }
+                        label = timeItem.label,
+                        initialChecked = timeItem.millis == selectedTimeMillis,
+                        onSelected = { if(it) selectedTimeMillis = timeItem.millis }
                     )
                 }
             }
@@ -102,7 +107,7 @@ fun BlockConfig(
                     onClickConfirm = {
                         if (selectedApps.isEmpty()){
                             showWarningDialog = true
-                        } else{ onClickConfirm(selectedApps.toList()) }
+                        } else{ onClickConfirm(selectedApps.toList(), selectedTimeMillis) }
                     }
                 )
             } else {
@@ -154,17 +159,35 @@ fun AppSelector(
         )
     }
 }
+
 @Composable
-fun TimeConfig(
-    timeList: List<Int>,
-    currentSelectedMin: Int,
-    onMinSelected: (Int) -> Unit
+fun SwitchTime(
+    label: String,
+    initialChecked: Boolean,
+    onSelected: (Boolean) -> Unit
 ){
-    timeList.forEach { time ->
-        SwitchTime(
-            timeConfig = time,
-            initialChecked = time == currentSelectedMin,
-            onMinSelected = onMinSelected
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = ComponentSurface,
+                shape = RoundedCornerShape(20.dp)
+            )
+            .border(
+                BorderStroke(1.dp, Color.Gray),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = label,
+            fontSize = 22.sp,
+            modifier = Modifier.weight(1f)
+        )
+        Switch(
+            checked = initialChecked,
+            onCheckedChange = onSelected
         )
     }
 }

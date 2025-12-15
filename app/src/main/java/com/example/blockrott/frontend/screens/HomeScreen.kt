@@ -1,5 +1,7 @@
 package com.example.blockrott.frontend.screens
 
+import android.widget.Toast
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -34,6 +36,7 @@ import com.example.blockrott.frontend.components.BlockConfig
 import com.example.blockrott.frontend.components.BottomSheet
 import com.example.blockrott.frontend.components.TimeLimitConfigSheet
 import com.example.blockrott.frontend.theme.*
+import com.example.blockrott.frontend.components.TimeConfigItem
 
 @Composable
 fun HomeScreen(
@@ -97,7 +100,13 @@ fun HomeScreen(
                 } else {
                     BlockButton(
                         modifier = Modifier.size(300.dp),
-                        onClick = { viewModel.mostrarBlockConfig() }
+                        onClick = { 
+                            if(uiState.isBlockedGlobal){
+                                Toast.makeText(context, "Tiempo restante: " + viewModel.obtenerTiempoRestante(), Toast.LENGTH_SHORT).show()
+                            } else {
+                                viewModel.mostrarBlockConfig() 
+                            }
+                        }
                     )
                 }
             }
@@ -112,10 +121,19 @@ fun HomeScreen(
                         .fillMaxWidth()
                         .fillMaxHeight(0.85f),
                     // Entregar estos valores validados
+                    // Entregar estos valores validados
                     appsList = uiState.appsList,
-                    timeList = listOf(5, 10, 15, 30, 45, 60),
-                    onClickConfirm = { selectedApps ->
-                        viewModel.bloquearApps(context, selectedApps)
+                    timeList = listOf(
+                        TimeConfigItem("20 Seg", 20 * 1000L),
+                        TimeConfigItem("5 Min", 5 * 60 * 1000L),
+                        TimeConfigItem("10 Min", 10 * 60 * 1000L),
+                        TimeConfigItem("15 Min", 15 * 60 * 1000L),
+                        TimeConfigItem("30 Min", 30 * 60 * 1000L),
+                        TimeConfigItem("45 Min", 45 * 60 * 1000L),
+                        TimeConfigItem("60 Min", 60 * 60 * 1000L)
+                    ),
+                    onClickConfirm = { selectedApps, selectedTime ->
+                        viewModel.bloquearApps(context, selectedApps, selectedTime)
                     }
                 )
             }
