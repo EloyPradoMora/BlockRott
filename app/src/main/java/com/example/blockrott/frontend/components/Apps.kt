@@ -34,7 +34,10 @@ fun UsedApps(
             .fillMaxWidth()
             .testTag("used_apps")
             .padding(vertical = 4.dp)
-            .background(ComponentBackground)
+            .background(
+                color = ComponentBackground,
+                shape = RoundedCornerShape(20.dp)
+            )
             .border(
                 BorderStroke(1.dp, Color.Gray),
                 shape = RoundedCornerShape(20.dp)
@@ -110,7 +113,10 @@ fun SwitchTime(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .background(ComponentSurface)
+            .background(
+                color = ComponentSurface,
+                shape = RoundedCornerShape(20.dp)
+            )
             .border(
                 BorderStroke(1.dp, Color.Gray),
                 shape = RoundedCornerShape(20.dp)

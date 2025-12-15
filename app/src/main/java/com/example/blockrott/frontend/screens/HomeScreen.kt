@@ -1,5 +1,6 @@
 package com.example.blockrott.frontend.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,9 +29,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.blockrott.frontend.components.BlockButton
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.graphics.Color
 import com.example.blockrott.frontend.components.BlockConfig
 import com.example.blockrott.frontend.components.BottomSheet
 import com.example.blockrott.frontend.components.TimeLimitConfigSheet
+import com.example.blockrott.frontend.theme.*
 
 @Composable
 fun HomeScreen(
@@ -41,89 +44,91 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         viewModel.verificarPermisos(context)
     }
-
-    Scaffold(
-        bottomBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .windowInsetsPadding(WindowInsets.navigationBars),
-                contentAlignment = Alignment.Center
-            ) {
-                StatisticsButton(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .height(65.dp)
-                        .width(125.dp),
-                    onClick = { viewModel.actualizarEstadisticas(context) }
-                )
-            }
-        }
-    ) { innerPadding ->
-
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-
-            if (uiState.showStatistics) {
+    Box(modifier = Modifier.fillMaxSize().background(brush = backgroundBrush)){
+        Scaffold(
+            containerColor = Color.Transparent,
+            bottomBar = {
                 Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .pointerInput(Unit) {
-                            detectTapGestures {
-                                viewModel.ocultarEstadisticas()
-                            }
-                        },
+                        .fillMaxWidth()
+                        .windowInsetsPadding(WindowInsets.navigationBars),
                     contentAlignment = Alignment.Center
                 ) {
-                    AppStatistics(
-                        useHours = uiState.tiempoTotal,
-                        usedApps = uiState.listaEstadisticas,
-                        weeklyAverage = "3h 59min",
-                        dailyHours = listOf(
-                            2.37F, 6.67F, 2.1F, 1.2F, 5.13F, 7.1F, 3.4F
-                        ),
-                        onConfigClick = { viewModel.mostrarConfiguracionTiempo() }
+                    StatisticsButton(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .height(65.dp)
+                            .width(125.dp),
+                        onClick = { viewModel.actualizarEstadisticas(context) }
                     )
                 }
-            } else {
-                BlockButton(
-                    modifier = Modifier.size(300.dp),
-                    onClick = { viewModel.mostrarBlockConfig() }
+            }
+        ) { innerPadding ->
+
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+
+                if (uiState.showStatistics) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                detectTapGestures {
+                                    viewModel.ocultarEstadisticas()
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AppStatistics(
+                            useHours = uiState.tiempoTotal,
+                            usedApps = uiState.listaEstadisticas,
+                            weeklyAverage = "3h 59min",
+                            dailyHours = listOf(
+                                2.37F, 6.67F, 2.1F, 1.2F, 5.13F, 7.1F, 3.4F
+                            ),
+                            onConfigClick = { viewModel.mostrarConfiguracionTiempo() }
+                        )
+                    }
+                } else {
+                    BlockButton(
+                        modifier = Modifier.size(300.dp),
+                        onClick = { viewModel.mostrarBlockConfig() }
+                    )
+                }
+            }
+        }
+        if (uiState.showBlockConfig) {
+            BottomSheet(
+                true,
+                {viewModel.ocultarBlockConfig()}
+            ){
+                BlockConfig(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.85f),
+                    // Entregar estos valores validados
+                    appsList = uiState.appsList,
+                    timeList = listOf(5, 10, 15, 30, 45, 60),
+                    onClickConfirm = { selectedApps ->
+                        viewModel.bloquearApps(context, selectedApps)
+                    }
                 )
             }
         }
-    }
-    if (uiState.showBlockConfig) {
-        BottomSheet(
-            true,
-            {viewModel.ocultarBlockConfig()}
-        ){
-            BlockConfig(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.85f),
-                // Entregar estos valores validados
+        if (uiState.showTimeLimitConfig) {
+            TimeLimitConfigSheet(
                 appsList = uiState.appsList,
-                timeList = listOf(5, 10, 15, 30, 45, 60),
-                onClickConfirm = { selectedApps ->
-                    viewModel.bloquearApps(context, selectedApps)
+                appLimits = uiState.appLimits,
+                onDismiss = { viewModel.ocultarConfiguracionTiempo() },
+                onUpdateLimit = { appName, limit ->
+                    viewModel.actualizarLimiteApp(appName, limit)
                 }
             )
         }
-    }
-    if (uiState.showTimeLimitConfig) {
-        TimeLimitConfigSheet(
-            appsList = uiState.appsList,
-            appLimits = uiState.appLimits,
-            onDismiss = { viewModel.ocultarConfiguracionTiempo() },
-            onUpdateLimit = { appName, limit ->
-                viewModel.actualizarLimiteApp(appName, limit)
-            }
-        )
     }
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -32,9 +33,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.*
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.example.blockrott.frontend.theme.*
 import com.example.blockrott.R.drawable
@@ -49,11 +50,11 @@ fun StatisticsButton(
         onClick = onClick,
         modifier = modifier
             .border(
-                border = BorderStroke(1.dp, Color.Gray),
+                border = BorderStroke(3.dp, BorderColor),
                 shape = shapeborder
             ),
         colors = IconButtonDefaults.iconButtonColors(
-            containerColor = ComponentBackground,
+            containerColor = PrimaryColor,
         )
     ) {
         Icon(
@@ -72,11 +73,16 @@ fun BlockButton(
     Surface(
         modifier = modifier,
         shape = CircleShape,
-        border = BorderStroke(5.dp, Color.Gray),
-        color = ComponentBackground,
+        border = BorderStroke(8.dp, BorderColor),
+        color = PrimaryColor,
         onClick = onClick
     ) {
-        /* IMAGEN BOTON DE CLOCKEO */
+        Icon(
+            imageVector = Icons.Default.Lock,
+            contentDescription = "Candado",
+            modifier = Modifier.padding(30.dp),
+            tint = DarkBlueGradientStart
+        )
     }
 }
 
@@ -179,12 +185,23 @@ fun ConfirmationButton(
         onClick = onClickConfirm,
         colors = ButtonDefaults.buttonColors(
             contentColor = Color.White,
-            containerColor = SecondaryColor
+            containerColor = DarkBlueGradientStart
         )
     ) {
         Text(
             text = text,
             fontSize = 22.sp,
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ButtonPreview(){
+    AppTheme {
+        BlockButton(
+            modifier = Modifier.size(300.dp),
+            onClick = {}
         )
     }
 }

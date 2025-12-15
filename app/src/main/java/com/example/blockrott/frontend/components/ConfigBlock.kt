@@ -123,7 +123,10 @@ fun AppSelector(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(ComponentSurface)
+            .background(
+                color = ComponentSurface,
+                shape = RoundedCornerShape(20.dp)
+            )
             .border(
                 BorderStroke(1.dp, Color.Gray),
                 shape = RoundedCornerShape(20.dp)
