@@ -72,7 +72,15 @@ public class Usuario {
                 packageName.startsWith("com.brave.browser") ||
                 packageName.startsWith("com.google.android.videos") ||
                 packageName.startsWith("com.whatsapp") ||
-                packageName.startsWith("com.facebook.orca");
+                packageName.startsWith("com.facebook.orca") ||
+                packageName.startsWith("com.discord") ||
+                packageName.startsWith("org.telegram.messenger") ||
+                packageName.startsWith("com.truecaller") ||
+                packageName.startsWith("com.sec.spp.push") || // Samsung Push Service
+                packageName.startsWith("com.google.android.ims") || // Carrier Services
+                packageName.startsWith("com.sec.android.app.sbrowser") || // Samsung Internet
+                packageName.startsWith("com.google.audio.hearing.visualization.accessibility.scribe") || // Live
+                packageName.startsWith("com.google.android.apps.docs.editors"); // Edits (office pero de google)
     }
 
     private void agregarSiNoExiste(PackageInfo packageInfo, PackageManager pm, long tiempoMaximo) {
