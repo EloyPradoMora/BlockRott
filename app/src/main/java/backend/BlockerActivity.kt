@@ -25,7 +25,7 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback
 class BlockerActivity : AppCompatActivity() {
     private val REASON_TIME_LIMIT = "TIME_LIMIT"
     private val REASON_GLOBAL_LOCK = "GLOBAL_LOCK"
-    private val EXTENSION_TIME_MS = 10 * 1000L // 10 segundos, extender para version final
+    private val EXTENSION_TIME_MS = 10 * 60 * 1000L // 10 segundos, extender para version final
     private val TAG = "BlockerActivityAd"
     private var rewardedAd: RewardedAd? = null
     private lateinit var adUnitId: String

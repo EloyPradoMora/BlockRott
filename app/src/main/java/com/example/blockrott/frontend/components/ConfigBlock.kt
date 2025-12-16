@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.blockrott.frontend.theme.ComponentBackground
+import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Switch
@@ -146,6 +147,7 @@ fun AppSelector(
         )
 
         Switch(
+            modifier = Modifier.testTag("app_switch_$app"),
             checked = selectedApps.contains(app),
             onCheckedChange = { isChecked ->
                 if (isChecked) {
@@ -186,6 +188,7 @@ fun SwitchTime(
             modifier = Modifier.weight(1f)
         )
         Switch(
+            modifier = Modifier.testTag("time_switch_$label"),
             checked = initialChecked,
             onCheckedChange = onSelected
         )

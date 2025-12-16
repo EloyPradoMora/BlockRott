@@ -40,8 +40,8 @@ class BlockConfigTest {
         composeTestRule.onNodeWithText("Discord").assertIsDisplayed()
         composeTestRule.onNodeWithText("Instagram").assertIsDisplayed()
 
-        composeTestRule.onNodeWithText("Discord").performClick()
-        composeTestRule.onNodeWithText("TikTok").performClick()
+        composeTestRule.onNodeWithTag("app_switch_Discord").performClick()
+        composeTestRule.onNodeWithTag("app_switch_TikTok").performClick()
         composeTestRule.waitForIdle()
 
         composeTestRule.onNodeWithText("Min/Seg").performClick()
@@ -51,7 +51,7 @@ class BlockConfigTest {
         composeTestRule.onNodeWithText("10 Min").assertExists()
         composeTestRule.onNodeWithText("15 Min").assertExists()
 
-        composeTestRule.onNodeWithText("10 Min").performClick()
+        composeTestRule.onNodeWithTag("time_switch_10 Min").performClick()
 
         composeTestRule.onNodeWithText("Siguiente").performClick()
         composeTestRule.waitForIdle()
