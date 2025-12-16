@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.shadows.ShadowAlertDialog;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = 34)
 public class UsuarioTest {
 
     private Context context;
