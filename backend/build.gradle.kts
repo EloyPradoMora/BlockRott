@@ -2,7 +2,7 @@ plugins {
 	java
 	id("org.springframework.boot") version "3.5.6"
 	id("io.spring.dependency-management") version "1.1.7"
-    id("org.sonarqube")
+    id("org.sonarqube")version "6.3.1.5724"
 }
 
 group = "com.example.blockrott"
