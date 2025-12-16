@@ -2,6 +2,7 @@ package com.example.blockrott;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import androidx.test.core.app.ApplicationProvider;
@@ -21,6 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
@@ -35,6 +38,10 @@ public class UsuarioAppLoaderTest {
         packageManager = mock(PackageManager.class);
         when(context.getPackageManager()).thenReturn(packageManager);
         when(context.getApplicationContext()).thenReturn(context);
+
+        SharedPreferences sharedPreferences = mock(SharedPreferences.class);
+        when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
+        when(sharedPreferences.getString(anyString(), anyString())).thenReturn(null);
         resetSingleton();
     }
 
