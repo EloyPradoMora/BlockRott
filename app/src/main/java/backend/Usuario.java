@@ -34,10 +34,23 @@ public class Usuario {
 
     private static final String PREFS_NAME = "BlockRottPrefs";
     private static final String KEY_IDENTITY = "user_identity_uuid";
+    private static final String KEY_TERMS_ACCEPTED = "user_terms_accepted";
     private String codigoIdentidad;
 
     public boolean tieneIdentidad() {
         return codigoIdentidad != null;
+    }
+
+    public boolean isTermsAccepted() {
+        android.content.SharedPreferences prefs = applicationContext.getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        return prefs.getBoolean(KEY_TERMS_ACCEPTED, false);
+    }
+
+    public void setTermsAccepted(boolean accepted) {
+        android.content.SharedPreferences prefs = applicationContext.getSharedPreferences(PREFS_NAME,
+                Context.MODE_PRIVATE);
+        prefs.edit().putBoolean(KEY_TERMS_ACCEPTED, accepted).apply();
     }
 
     public String getCodigoIdentidad() {
