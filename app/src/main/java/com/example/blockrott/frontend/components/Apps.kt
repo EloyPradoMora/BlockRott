@@ -4,10 +4,13 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,14 +26,18 @@ import com.example.blockrott.frontend.theme.ComponentSurface
 @Composable
 fun UsedApps(
     appName: String,
-    usageTime: String
+    usageTime: String,
+    color: Color
 ){
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("used_apps")
             .padding(vertical = 4.dp)
-            .background(ComponentBackground)
+            .background(
+                color = ComponentBackground,
+                shape = RoundedCornerShape(20.dp)
+            )
             .border(
                 BorderStroke(1.dp, Color.Gray),
                 shape = RoundedCornerShape(20.dp)
@@ -38,6 +45,12 @@ fun UsedApps(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Box(
+            modifier = Modifier
+                .padding(end = 12.dp)
+                .size(12.dp)
+                .background(color = color, shape = CircleShape)
+        )
         Text(
             text = appName,
             modifier = Modifier.weight(1f),
@@ -100,7 +113,10 @@ fun SwitchTime(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .background(ComponentSurface)
+            .background(
+                color = ComponentSurface,
+                shape = RoundedCornerShape(20.dp)
+            )
             .border(
                 BorderStroke(1.dp, Color.Gray),
                 shape = RoundedCornerShape(20.dp)

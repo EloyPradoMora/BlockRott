@@ -10,13 +10,12 @@ import java.util.HashMap;
 import java.util.Map;
 import android.util.Log;
 
-
 public class UsoDiario {
 
     // constantes para almacenar localmente
 
-    private static final String PREFS_NAME = "UsoDiarioPrefs";
-    private static final String KEY_PREFIX = "uso_diario_";
+    public static final String PREFS_NAME = "UsoDiarioPrefs";
+    public static final String KEY_PREFIX = "uso_diario_";
 
     private final Context context;
 
@@ -44,7 +43,6 @@ public class UsoDiario {
         // Determinar el Lunes de la semana actual para definir el rango de 7 dias
         LocalDate hoy = LocalDate.now();
         LocalDate inicioSemana = hoy.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-
 
         for (int i = 0; i < 7; i++) {
             LocalDate fecha = inicioSemana.plusDays(i);
@@ -84,9 +82,5 @@ public class UsoDiario {
 
         return reporteFinal;
     }
-
-
-
-
 
 }

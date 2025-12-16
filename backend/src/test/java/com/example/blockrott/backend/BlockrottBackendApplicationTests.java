@@ -6,6 +6,15 @@ import com.example.blockrott.backend.entidades.Usuario;
 import com.example.blockrott.backend.repositorio.RepositorioUsuario;
 import com.example.blockrott.backend.servicios.ServicioReporte;
 import com.example.blockrott.backend.servicios.ServicioUsuario;
+import com.example.blockrott.backend.repositorio.RepositorioUsoDiario;
+import com.example.blockrott.backend.entidades.UsoDiario;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.test.web.servlet.MockMvc;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.MediaType;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +29,7 @@ import javax.sql.DataSource;
 import jakarta.transaction.Transactional;
 
 @SpringBootTest
+@AutoConfigureMockMvc
 class BlockrottBackendApplicationTests {
 	@Autowired
 	private DataSource dataSource;
@@ -31,6 +41,15 @@ class BlockrottBackendApplicationTests {
 	private ServicioUsuario servicioUsuario;
 	@Autowired
 	private ServicioReporte servicioReporte;
+
+	@Autowired
+	private MockMvc mockMvc;
+
+	@Autowired
+	private RepositorioUsoDiario repositorioUsoDiario;
+
+	@Autowired
+	private ObjectMapper objectMapper;
 
 	@Test
 	void pruebaDeConexionSQL() throws SQLException {
@@ -70,13 +89,12 @@ class BlockrottBackendApplicationTests {
 			System.out.println(
 					"  APP " + r.getNombreApp() +
 							" INICIO " + r.getSemanaInicio() +
-							" PROMEDIO " + r.getPromedioUsoSeg() + " seg"
-			);
+							" PROMEDIO " + r.getPromedioUsoSeg() + " seg");
 		});
 	}
 
 	@Test
-	@Transactional  // se usa para que no quede en la base de datos
+	@Transactional // se usa para que no quede en la base de datos
 	void pruebaCrearUsuario() {
 		System.out.println("\n[PRUEBA 4: CREAR USUARIO NUEVO (SERVICIO)]");
 
@@ -98,5 +116,38 @@ class BlockrottBackendApplicationTests {
 
 		System.out.println("-> OK: Usuario 'Test Registro' creado y contrasena cifrada.");
 
+	}
+
+	@Test
+	@Transactional
+	void testRegistroUsoDiarioCompleto() throws Exception {
+		System.out.println("\n[PRUEBA 5: REGISTRO USO DIARIO (INTEGRACION)]");
+
+		Usuario usuario = new Usuario();
+		usuario.setCorreo("test.usodiario@dominio.com");
+		usuario.setNombreUsuario("Test Uso Diario");
+		usuario.setContrasenaHash("hash_dummy");
+		usuario.setFechaCreacion(java.time.LocalDateTime.now());
+		Usuario usuarioGuardado = repositorioUsuario.save(usuario);
+
+		var solicitud = new Object() {
+			public String usuarioCodigo = "test.usodiario@dominio.com";
+			public Long tiempoTotalSegundos = 3600L;
+		};
+
+		String jsonRequest = objectMapper.writeValueAsString(solicitud);
+
+		mockMvc.perform(post("/api/usodiario")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(jsonRequest))
+				.andExpect(status().isCreated());
+
+		java.util.List<UsoDiario> registros = repositorioUsoDiario.findAll();
+		boolean encontrado = registros.stream()
+				.anyMatch(u -> u.getUsuario().getId().equals(usuarioGuardado.getId())
+						&& u.getTiempoTotalSegundos() == 3600L);
+
+		assertTrue(encontrado, "El registro de uso diario deberia existir en la BD");
+		System.out.println("-> OK: Registro de uso diario verificado en BD.");
 	}
 }

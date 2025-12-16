@@ -20,3 +20,5 @@ backend/src/main/resources/application.properties
 application.properties
 # Android Studio Test Results
 /.idea/androidTestResultsUserPreferences.xml
+logs/blockrott-backend.log
+logs/blockrott-backend.2025-12-14.log

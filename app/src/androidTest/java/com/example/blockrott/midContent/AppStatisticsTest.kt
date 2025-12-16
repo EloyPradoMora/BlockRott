@@ -66,7 +66,8 @@ class AppStatisticsTest {
                 useHours = useHours,
                 usedApps = testUsedApps,
                 weeklyAverage = "2h 30min",
-                dailyHours = testDailyHours
+                dailyHours = testDailyHours,
+                onConfigClick = {}
             )
         }
         composeTestRule.onNodeWithText("Hoy").assertIsDisplayed()
@@ -83,7 +84,8 @@ class AppStatisticsTest {
                 useHours = "4h 15min",
                 usedApps = testUsedApps,
                 weeklyAverage = weeklyAverage,
-                dailyHours = testDailyHours
+                dailyHours = testDailyHours,
+                onConfigClick = {}
             )
         }
         composeTestRule.onNodeWithText("Semanal").performClick()
@@ -104,7 +106,8 @@ class AppStatisticsTest {
                 useHours = "5min",
                 usedApps = dataWithZero,
                 weeklyAverage = "0h",
-                dailyHours = emptyList()
+                dailyHours = emptyList(),
+                onConfigClick = {}
             )
         }
         composeTestRule.onNodeWithText("5min").assertIsDisplayed()
@@ -118,7 +121,8 @@ class AppStatisticsTest {
                 useHours = "0h 0min",
                 usedApps = noApps,
                 weeklyAverage = "0h",
-                dailyHours = emptyList()
+                dailyHours = emptyList(),
+                onConfigClick = {}
             )
         }
         composeTestRule.onNodeWithText("0h 0min").assertIsDisplayed()
@@ -133,7 +137,8 @@ class AppStatisticsTest {
                 useHours = "0h",
                 usedApps = testUsedApps,
                 weeklyAverage = zeroAvg,
-                dailyHours = noHours
+                dailyHours = noHours,
+                onConfigClick = {}
             )
         }
         composeTestRule.onNodeWithText("Semanal").performClick()

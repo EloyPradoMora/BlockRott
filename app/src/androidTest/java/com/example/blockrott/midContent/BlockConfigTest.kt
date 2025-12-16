@@ -17,17 +17,22 @@ class BlockConfigTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+
     @Test
     fun blockConfig_integration_selectApps_setMinutes_andConfirm() {
         val appsList = listOf("Discord", "Instagram", "TikTok")
-        val timeList = listOf(5, 10, 15)
+        val timeList = listOf(
+            com.example.blockrott.frontend.components.TimeConfigItem("5 Min", 300000L),
+            com.example.blockrott.frontend.components.TimeConfigItem("10 Min", 600000L),
+            com.example.blockrott.frontend.components.TimeConfigItem("15 Min", 900000L)
+        )
         var confirmCalled = false
 
         composeTestRule.setContent {
             BlockConfig(
                 appsList = appsList,
                 timeList = timeList,
-                onClickConfirm = { confirmCalled = true }
+                onClickConfirm = { _, _ -> confirmCalled = true }
             )
         }
 
@@ -35,18 +40,18 @@ class BlockConfigTest {
         composeTestRule.onNodeWithText("Discord").assertIsDisplayed()
         composeTestRule.onNodeWithText("Instagram").assertIsDisplayed()
 
-        composeTestRule.onNodeWithText("Discord").performClick()
-        composeTestRule.onNodeWithText("TikTok").performClick()
+        composeTestRule.onNodeWithTag("app_switch_Discord").performClick()
+        composeTestRule.onNodeWithTag("app_switch_TikTok").performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Min").performClick()
+        composeTestRule.onNodeWithText("Min/Seg").performClick()
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithTag("row_${timeList[0]}").assertExists()
-        composeTestRule.onNodeWithTag("row_${timeList[1]}").assertExists()
-        composeTestRule.onNodeWithTag("row_${timeList[2]}").assertExists()
+        composeTestRule.onNodeWithText("5 Min").assertExists()
+        composeTestRule.onNodeWithText("10 Min").assertExists()
+        composeTestRule.onNodeWithText("15 Min").assertExists()
 
-        composeTestRule.onNodeWithTag("row_${timeList[1]}").performClick()
+        composeTestRule.onNodeWithTag("time_switch_10 Min").performClick()
 
         composeTestRule.onNodeWithText("Siguiente").performClick()
         composeTestRule.waitForIdle()

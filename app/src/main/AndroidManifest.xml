@@ -12,6 +12,8 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -41,7 +43,8 @@
         <activity
             android:name="backend.BlockerActivity"
             android:theme="@style/Theme.AppCompat.Dialog.Alert"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.example.blockrott.blocker"
             android:excludeFromRecents="true"
             android:exported="false" />
         <meta-data

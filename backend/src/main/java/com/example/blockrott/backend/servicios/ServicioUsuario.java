@@ -12,9 +12,15 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.UUID;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class ServicioUsuario {
+    // private static final org.slf4j.Logger logger =
+    // org.slf4j.LoggerFactory.getLogger(ServicioUsuario.class);
     private final RepositorioUsuario repositorioUsuario;
     private final PasswordEncoder passwordEncoder;
 
@@ -46,5 +52,24 @@ public class ServicioUsuario {
         respuesta.setFechaCreacion(usuario.getFechaCreacion());
 
         return respuesta;
+    }
+
+    public String registrarUsuarioAnonimo(String modelo) {
+        String uuid = UUID.randomUUID().toString();
+
+        Usuario nuevoUsuario = new Usuario();
+        if (modelo != null && !modelo.isEmpty()) {
+            nuevoUsuario.setNombreUsuario(modelo + " " + uuid.substring(0, 4));
+        } else {
+            nuevoUsuario.setNombreUsuario("Dispositivo " + uuid.substring(0, 8));
+        }
+        nuevoUsuario.setCorreo(uuid);
+        nuevoUsuario.setContrasenaHash(passwordEncoder.encode(uuid));
+        nuevoUsuario.setFechaCreacion(LocalDateTime.now());
+
+        repositorioUsuario.save(nuevoUsuario);
+        log.info("Usuario anonimo creado exitingosamente. UUID: {}, Nombre: {}", uuid,
+                nuevoUsuario.getNombreUsuario());
+        return uuid;
     }
 }

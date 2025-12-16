@@ -17,6 +17,8 @@ public class EspecificacionApp {
     private long tiempoMaximoUso;
     protected boolean bloqueada;
     private Context contexto;
+    private long tiempoSesionExtra = 0;
+    private long ultimoTiempoSistema = 0;
 
     public EspecificacionApp(String nombreApp, String nombrePaquete, long tiempoMaximoUso, Context contexto){
         this.nombreApp = nombreApp;
@@ -25,6 +27,9 @@ public class EspecificacionApp {
         this.tiempoMaximoUso = tiempoMaximoUso;
         this.contexto = contexto.getApplicationContext();
         this.bloqueada = false;
+    }
+    public void sumarTiempoEnPrimerPlano(long millis) {
+        this.tiempoSesionExtra += millis;
     }
 
     public long obtenerTiempoDeUsoAplicacion() {
@@ -46,12 +51,23 @@ public class EspecificacionApp {
         String nombreDisplay = obtenerNombreLegibleApp();
         for (UsageStats estadistica : listaEstadisticas) {
             if (estadistica.getPackageName().equals(nombrePaquete)) {
-                long tiempoMilisegundos = estadistica.getTotalTimeInForeground();
+                long tiempoTotalSistema = estadistica.getTotalTimeInForeground();
+
+                // Si el sistema actualiza bien las estadisticas (si el tiempo de uso cambia), sincronizamos con eso
+                if (tiempoTotalSistema > this.ultimoTiempoSistema) {
+                    this.ultimoTiempoSistema = tiempoTotalSistema;
+                    this.tiempoSesionExtra = 0;
+                } else if (this.ultimoTiempoSistema == 0) {
+                    // Primera inicialización
+                    this.ultimoTiempoSistema = tiempoTotalSistema;
+                }
+                long usoCalculado = this.ultimoTiempoSistema + this.tiempoSesionExtra;
                 Log.d("AccesoUsoApps",
                         "App: " + nombreDisplay
-                                + " -> " + convertirTiempoLegible(tiempoMilisegundos));
-                this.tiempoUso = tiempoMilisegundos;
-                return tiempoMilisegundos;
+                                + " -> " + convertirTiempoLegible(usoCalculado)
+                                + " (Sys: " + tiempoTotalSistema + " + Extra: " + tiempoSesionExtra + ")");
+                this.tiempoUso = usoCalculado;
+                return usoCalculado;
             }
         }
         return 0;
@@ -92,11 +108,14 @@ public class EspecificacionApp {
     public boolean isBloqueada() { return this.bloqueada; }
 
     public void agregarTiempoMaximoUso(long extensionMillis) {
-        this.tiempoMaximoUso += extensionMillis;
+        this.tiempoMaximoUso = Math.max(this.tiempoMaximoUso, this.tiempoUso) + extensionMillis;
         Log.d("BlockRott", nombreApp + " - Límite extendido por " + extensionMillis + "ms. Nuevo Límite: " + tiempoMaximoUso);
     }
 
     public long getTiempoMaximoUso() {
         return this.tiempoMaximoUso;
+    }
+    public void setTiempoMaximoUso(long tiempoMaximoUso) {
+        this.tiempoMaximoUso = tiempoMaximoUso;
     }
 }

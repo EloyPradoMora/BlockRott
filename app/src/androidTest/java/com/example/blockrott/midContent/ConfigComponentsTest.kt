@@ -13,7 +13,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.blockrott.frontend.components.AppConfig
-import com.example.blockrott.frontend.components.TimeConfig
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -24,63 +23,6 @@ import org.junit.runner.RunWith
 class ConfigComponentsTest {
     @get:Rule
     val composeTestRule = createComposeRule()
-
-    // --- PRUEBAS PARA TimeConfig ---
-
-    @Test
-    fun timeConfig_displaysAll() {
-        val timeList = listOf(15, 30, 60)
-        composeTestRule.setContent {
-            TimeConfig(
-                timeList = timeList,
-                currentSelectedMin = 0,
-                onMinSelected = {}
-            )
-        }
-        composeTestRule.onNodeWithText("15 min").assertIsDisplayed()
-        composeTestRule.onNodeWithText("30 min").assertIsDisplayed()
-        composeTestRule.onNodeWithText("60 min").assertIsDisplayed()
-    }
-    @Test
-    fun timeConfig_clickTimeAndCallback(){
-        val timeList = listOf(15, 30)
-        var capturedMin by mutableIntStateOf(0)
-        val tag1 = "tag_${timeList[1]}"
-        composeTestRule.setContent {
-            TimeConfig(
-                timeList = timeList,
-                currentSelectedMin = capturedMin,
-                onMinSelected = { newMin -> capturedMin = newMin }
-            )
-        }
-        assertEquals(0,capturedMin)
-        composeTestRule.onNodeWithTag(tag1).performClick()
-        composeTestRule.onNodeWithTag(tag1).assertIsOn()
-        assertEquals(30, capturedMin)
-    }
-    @Test
-    fun timeConfig_multiplesClickTimeAndCallback() {
-        val timeList = listOf(15, 30)
-        var capturedMin by mutableIntStateOf(15)
-        val tag0 = "tag_${timeList[0]}"
-        val tag1 = "tag_${timeList[1]}"
-        composeTestRule.setContent {
-            TimeConfig(
-                timeList = timeList,
-                currentSelectedMin = capturedMin,
-                onMinSelected = { newMin -> capturedMin = newMin }
-            )
-        }
-        composeTestRule.onNodeWithTag(tag0).assertIsOn()
-        assertEquals(15, capturedMin)
-        composeTestRule.onNodeWithTag(tag1).performClick()
-        composeTestRule.onNodeWithTag(tag1).assertIsOn()
-        composeTestRule.onNodeWithTag(tag0).assertIsOff()
-        assertEquals(30, capturedMin)
-        composeTestRule.onNodeWithTag(tag1).performClick()
-        composeTestRule.onNodeWithTag(tag1).assertIsOff()
-        assertEquals(0, capturedMin)
-    }
 
     // --- PRUEBAS PARA AppConfig ---
 

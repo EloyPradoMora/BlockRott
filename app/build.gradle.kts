@@ -57,6 +57,10 @@ dependencies {
     // Esto gestiona las versiones del compose, para que las dependencias usen
     implementation(platform(libs.androidx.compose.bom))
 
+    // Dependencias de conexion a la base de datos
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
     // Dependencias de Jetpack Compose UI
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)

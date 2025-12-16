@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.shadows.ShadowAlertDialog;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
+@Config(sdk = 34)
 public class UsuarioTest {
 
     private Context context;
@@ -80,13 +82,9 @@ public class UsuarioTest {
     @Test
     public void testBloquearApps_CambiaEstadoYMuestraDialogo() {
         Usuario usuario = Usuario.getInstance(context);
-        // Estado inicial (asumimos false)
-        if (usuario.isBloqueoGlobal()) usuario.bloquearApps(context); // Reset si estaba true
-
-        assertFalse(usuario.isBloqueoGlobal());
 
         // Ejecutar bloqueo
-        usuario.bloquearApps(context);
+        usuario.bloquearApps(context, new ArrayList<>(), 5000L);
 
         assertTrue("El bloqueo global debería activarse", usuario.isBloqueoGlobal());
 

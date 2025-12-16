@@ -34,6 +34,8 @@ public class AppMonitorService extends Service {
     private Runnable monitoringRunnable;
     private Usuario usuario;
     private String lastBlockedPackage = "";
+    private long lastSaveTime = 0;
+    private static final long SAVE_INTERVAL_MS = 60000; // 1 minuto
 
     @Override
     public void onCreate() {
@@ -65,42 +67,72 @@ public class AppMonitorService extends Service {
         return START_STICKY; // El servicio se reiniciará si el sistema lo mata
     }
 
+    private long lastCheckTime = 0;
+
     private void runMonitoringLoop() {
         if (usuario == null) {
             Log.e(TAG, "Usuario es nulo, deteniendo el bucle.");
             return;
         }
-        usuario.monitoreoApps();
+
+        long currentTime = System.currentTimeMillis();
+        long delta = 0;
+        if (lastCheckTime > 0) {
+            delta = currentTime - lastCheckTime;
+        }
+        lastCheckTime = currentTime;
+
         String foregroundApp = getForegroundAppPackageName();
+
+        // Primero actualizamos el tiempo manual de la app en primer plano si
+        // corresponde
+        if (foregroundApp != null && delta > 0) {
+            for (EspecificacionApp app : usuario.getEspecificacionesApp()) {
+                if (app.getNombrePaquete().equals(foregroundApp)) {
+                    app.sumarTiempoEnPrimerPlano(delta);
+                    break;
+                }
+            }
+        }
+
+        usuario.monitoreoApps();
+
+        // Guardar estadísticas periodicamente
+        if (currentTime - lastSaveTime > SAVE_INTERVAL_MS) {
+            usuario.guardarEstadisticas();
+            lastSaveTime = currentTime;
+            Log.d(TAG, "Estadisticas guardadas");
+        }
+
         if (foregroundApp != null && foregroundApp.equals(getPackageName())) {
             monitoringHandler.postDelayed(monitoringRunnable, MONITOR_INTERVAL_MS);
             return; // estamos en blockrott no hacemos nada, pero hay que seguir monitoriando
         }
         if (foregroundApp == null || foregroundApp.equals(getPackageName())) {
             monitoringHandler.postDelayed(monitoringRunnable, MONITOR_INTERVAL_MS);
-            return; //terminamos altiro si es que la app actual del usuario no esta en la lista de apps a bloquear
+            return; // terminamos altiro si es que la app actual del usuario no esta en la lista de
+                    // apps a bloquear
         }
         boolean appIsBlocked = false;
         boolean isGlobalBlock = usuario.isBloqueoGlobal();
         for (EspecificacionApp app : usuario.getEspecificacionesApp()) {
             if (app.getNombrePaquete().equals(foregroundApp)) {
                 String blockReason = null;
-                if (isGlobalBlock) {
+                if (isGlobalBlock && usuario.isAppBlockedGlobal(foregroundApp)) {
                     blockReason = REASON_GLOBAL_LOCK;
                 } else if (app.isBloqueada()) {
                     blockReason = REASON_TIME_LIMIT;
                 }
                 if (blockReason != null) {
                     appIsBlocked = true;
-                    if (!foregroundApp.equals(lastBlockedPackage)) {
-                        Log.d(TAG, "Bloqueando app: " + foregroundApp + " - Reason: " + blockReason);
-                        showBlockerScreen(foregroundApp, blockReason);
-                    }
+                    Log.d(TAG, "Bloqueando app: " + foregroundApp + " - Reason: " + blockReason);
+                    showBlockerScreen(foregroundApp, blockReason);
                 }
                 break;
             }
         }
-        if (!appIsBlocked) { //esto esta para que si el usuario se sale de la app bloqueada y trata de volver a entrar el bloqeo salte de nuevo
+        if (!appIsBlocked) { // esto esta para que si el usuario se sale de la app bloqueada y trata de
+                             // volver a entrar el bloqeo salte de nuevo
             if (!lastBlockedPackage.isEmpty()) {
                 Log.d(TAG, "Clearing last blocked app: " + lastBlockedPackage);
             }
@@ -110,9 +142,6 @@ public class AppMonitorService extends Service {
     }
 
     private void showBlockerScreen(String packageName, String reason) {
-        if (packageName.equals(lastBlockedPackage)) {
-            return;
-        }
         lastBlockedPackage = packageName;
         Intent intent = new Intent(this, BlockerActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -123,18 +152,32 @@ public class AppMonitorService extends Service {
 
     private String getForegroundAppPackageName() {
         UsageStatsManager usm = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
-        if (usm == null) return null;
+        if (usm == null)
+            return null;
         long time = System.currentTimeMillis();
-        List<UsageStats> stats = usm.queryUsageStats(
-                UsageStatsManager.INTERVAL_DAILY, time - (60 * 1000), time);
+        android.app.usage.UsageEvents usageEvents = usm.queryEvents(time - (5 * 60 * 1000), time);
+        android.app.usage.UsageEvents.Event event = new android.app.usage.UsageEvents.Event();
+        String currentPackage = null;
 
-        if (stats != null && !stats.isEmpty()) {
-            SortedMap<Long, UsageStats> sortedStats = new TreeMap<>();
-            for (UsageStats usageStats : stats) {
-                sortedStats.put(usageStats.getLastTimeUsed(), usageStats);
+        while (usageEvents.hasNextEvent()) {
+            usageEvents.getNextEvent(event);
+            if (event.getEventType() == android.app.usage.UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                currentPackage = event.getPackageName();
             }
-            if (!sortedStats.isEmpty()) {
-                return sortedStats.get(sortedStats.lastKey()).getPackageName();
+        }
+        if (currentPackage != null) {
+            return currentPackage;
+        }
+        // Si no hay eventos recientes, buscamos la app con el último tiempo de uso
+        List<UsageStats> stats = usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, time - (1000 * 60 * 60 * 24),
+                time);
+        if (stats != null) {
+            SortedMap<Long, UsageStats> mySortedMap = new TreeMap<>();
+            for (UsageStats usageStats : stats) {
+                mySortedMap.put(usageStats.getLastTimeUsed(), usageStats);
+            }
+            if (!mySortedMap.isEmpty()) {
+                return mySortedMap.get(mySortedMap.lastKey()).getPackageName();
             }
         }
         return null;
@@ -143,6 +186,9 @@ public class AppMonitorService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (usuario != null) {
+            usuario.guardarEstadisticas();
+        }
         Log.i(TAG, "Servicio OnDestroy");
         monitoringHandler.removeCallbacks(monitoringRunnable);
     }
@@ -158,8 +204,7 @@ public class AppMonitorService extends Service {
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
                     "Canal de Monitoreo de App",
-                    NotificationManager.IMPORTANCE_LOW
-            );
+                    NotificationManager.IMPORTANCE_LOW);
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) {
                 manager.createNotificationChannel(serviceChannel);
