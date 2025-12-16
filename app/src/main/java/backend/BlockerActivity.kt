@@ -73,7 +73,7 @@ class BlockerActivity : AppCompatActivity() {
             AppTheme {
                 val currentPackageName = packageNameState.value
                 val currentBlockReason = blockReasonState.value
-                val title = currentPackageName ?: "Aplicación Bloqueada"
+                val title = if (currentPackageName != null) getAppName(currentPackageName) else "Aplicación Bloqueada"
                 val explanation = when (currentBlockReason) {
                     REASON_TIME_LIMIT -> "¡Límite de tiempo alcanzado! ¿Quieres una extensión?"
                     REASON_GLOBAL_LOCK -> "Aplicación bloqueada por el control global."
@@ -179,5 +179,13 @@ class BlockerActivity : AppCompatActivity() {
         homeIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         startActivity(homeIntent)
         finish()
+    }
+    private fun getAppName(packageName: String): String {
+        return try {
+            val appInfo = packageManager.getApplicationInfo(packageName, 0)
+            packageManager.getApplicationLabel(appInfo).toString()
+        } catch (e: Exception) {
+            packageName
+        }
     }
 }
